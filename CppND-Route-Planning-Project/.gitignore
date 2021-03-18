@@ -9,6 +9,8 @@ lib/
 
 thirdparty/clang/
 thirdparty/P0267_RefImpl/
+thirdparty/pugixml/
+thirdparty/pugixml/*
 
 Dockerfile
 
