@@ -7,16 +7,14 @@
 #include <queue>
 #include "route_model.h"
 
-struct Compare {
-    bool operator() (const RouteModel::Node* a, const RouteModel::Node* b) const {
-        float f1 = a->g_value + a->h_value;
-        float f2 = b->g_value + b->h_value;
-        return f1 > f2;
-    }
-};
 
 class RoutePlanner {
   public:
+    // Compare object for implemnting min-heap
+    class Compare {
+      public:
+        bool operator() (const RouteModel::Node*, const RouteModel::Node*) const;
+    };
     RoutePlanner(RouteModel &model, float start_x, float start_y, float end_x, float end_y);
     // Add public variables or methods declarations here.
     float GetDistance() const {return distance;}
@@ -31,6 +29,7 @@ class RoutePlanner {
   private:
     // Add private variables or methods declarations here.
     // std::vector<RouteModel::Node*> open_list;
+    // Implement A* Search using std::priority_queue with an underlying min-heap
     std::priority_queue<RouteModel::Node*, std::vector<RouteModel::Node*>, Compare> open_list;
     RouteModel::Node *start_node;
     RouteModel::Node *end_node;

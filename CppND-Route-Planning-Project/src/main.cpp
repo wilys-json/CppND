@@ -57,8 +57,12 @@ int main(int argc, const char **argv)
     // RoutePlanner object below in place of 10, 10, 90, 90.
 
     float start_x, start_y, end_x, end_y;
-    std::cout << "Enter the x,y coordinates of START & END (separate by space): " << std::endl;
+
+    std::cout << "Please enter the x, y coordinates of START & END, separated by space" \
+              << "\n" << "(start_x start_y end_x end_y): " << std::endl;
     std::cin >> start_x >> start_y >> end_x >> end_y;
+
+
 
     // Build Model.
     RouteModel model{osm_data};
