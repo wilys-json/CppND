@@ -1,0 +1,15 @@
+*.swp
+*.osm
+*.o
+draw.cpp
+test.cpp
+build/
+bin/
+lib/
+
+thirdparty/clang/
+thirdparty/P0267_RefImpl/
+
+Dockerfile
+
+run.sh
