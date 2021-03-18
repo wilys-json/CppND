@@ -4,8 +4,16 @@
 #include <iostream>
 #include <vector>
 #include <string>
+#include <queue>
 #include "route_model.h"
 
+struct Compare {
+    bool operator() (const RouteModel::Node* a, const RouteModel::Node* b) const {
+        float f1 = a->g_value + a->h_value;
+        float f2 = b->g_value + b->h_value;
+        return f1 > f2;
+    }
+};
 
 class RoutePlanner {
   public:
@@ -22,7 +30,8 @@ class RoutePlanner {
 
   private:
     // Add private variables or methods declarations here.
-    std::vector<RouteModel::Node*> open_list;
+    // std::vector<RouteModel::Node*> open_list;
+    std::priority_queue<RouteModel::Node*, std::vector<RouteModel::Node*>, Compare> open_list;
     RouteModel::Node *start_node;
     RouteModel::Node *end_node;
 
