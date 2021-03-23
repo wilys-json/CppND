@@ -4,6 +4,9 @@
 #include <fstream>
 #include <regex>
 #include <string>
+#include <vector>
+
+#define STARTTIME_IDX 21
 
 namespace LinuxParser {
 // Paths
@@ -19,6 +22,7 @@ const std::string kOSPath{"/etc/os-release"};
 const std::string kPasswordPath{"/etc/passwd"};
 
 // System
+long getMemInfo(std::string meminfo);
 float MemoryUtilization();
 long UpTime();
 std::vector<int> Pids();
@@ -52,6 +56,7 @@ std::string Ram(int pid);
 std::string Uid(int pid);
 std::string User(int pid);
 long int UpTime(int pid);
+std::vector<std::string> ProcessStat(int pid); // helper function
 };  // namespace LinuxParser
 
 #endif
