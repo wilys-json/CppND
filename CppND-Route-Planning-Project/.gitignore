@@ -16,4 +16,4 @@ thirdparty/pugixml/*
 
 Dockerfile
 
-run.sh
+*.sh
