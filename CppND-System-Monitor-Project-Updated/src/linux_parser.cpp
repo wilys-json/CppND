@@ -3,7 +3,6 @@
 #include <string>
 #include <vector>
 #include <iostream>
-#include <stdexcept>
 
 #include "linux_parser.h"
 
@@ -15,81 +14,80 @@ using std::to_string;
 using std::vector;
 using std::runtime_error;
 
-
 template <typename T>
-const T LinuxParser::GenericParser<T>::ParseLine(const string &filename,
-    const int &itemNumber) {
+const T LinuxParser::GenericParser<T>::getPosition(const string &filename,
+    const int &position) {
     string line;
     std::ifstream filestream(filename);
-    T value;
-    try {
-        if (filestream.is_open()) {
-            std::getline(filestream, line);
-            std::istringstream linestream(line);
-            for (int i = 0; i < itemNumber; i++) {
-                linestream >> value;
-            }
-            return value;
-        } else {
-            throw runtime_error("Cannot open file: " + filename);
+    T value = T();
+    if (filestream.is_open()) {
+        std::getline(filestream, line);
+        std::istringstream linestream(line);
+        for (int i = 0; i < position; i++) {
+            linestream >> value;
         }
-    } catch (...) {
-        throw runtime_error("Cannot open file: " + filename);
+        return value;
     }
+    return value;
 }
 
 
 template <typename T>
-const T LinuxParser::GenericParser<T>::Parse(const string &filename,
+const T LinuxParser::GenericParser<T>::getValue(const string &filename,
     const string& targetKey) {
     string line, key;
     std::ifstream filestream(filename);
-    T value;
-    try {
-        if (filestream.is_open()) {
-            while (std::getline(filestream, line)) {
-                std::istringstream linestream(line);
-                while (linestream >> key >> value) {
-                            if(key == targetKey) return value;
-                }
+    T value = T();
+    if (filestream.is_open()) {
+        while (std::getline(filestream, line)) {
+            std::istringstream linestream(line);
+            while (linestream >> key >> value) {
+              if(key == targetKey) return value;
             }
-        } else {
-            throw runtime_error("Cannot open file: " + filename);
         }
-    } catch (...) {
-        throw runtime_error("Cannot open file: " + filename);
     }
-
+    return value;
 }
 
 
 template <typename T>
-const vector<T> LinuxParser::GenericParser<T>::Parse(const string &filename,
+const vector<T> LinuxParser::GenericParser<T>::getValues(const string &filename,
     const int &range) {
     string line, key;
     std::ifstream filestream(filename);
     T value;
-    vector<T> collector;
-    try {
-        if (filestream.is_open()) {
-        for (int i = 0; i < range; i++) {
-            std::getline(filestream, line);
-            std::istringstream linestream(line);
-            linestream >> key >> value;
-            collector.emplace_back(value);
-        }
-          return collector;
-      } else {
-          throw runtime_error("Cannot open file: " + filename);
+    vector<T> collector{};
+    if (filestream.is_open()) {
+      for (int i = 0; i < range; i++) {
+          std::getline(filestream, line);
+          std::istringstream linestream(line);
+          linestream >> key >> value;
+          collector.emplace_back(value);
       }
-    } catch (...) {
-        throw runtime_error("Cannot open file: " + filename);
+    return collector;
     }
-
+  return collector;
 }
 
 
-// DONE: An example of how to read data from the filesystem
+template <typename T>
+const vector<T> LinuxParser::GenericParser<T>::getValues(const string &filename)
+{
+    string line;
+    std::ifstream filestream(filename);
+    T value;
+    vector<T> collector{};
+    if (filestream.is_open()) {
+        std::getline(filestream, line);
+        std::istringstream linestream(line);
+        while(linestream >> value) collector.emplace_back(value);
+        return collector;
+    }
+    return collector;
+}
+
+
+
 string LinuxParser::OperatingSystem() {
   string line;
   string key;
@@ -114,16 +112,7 @@ string LinuxParser::OperatingSystem() {
 
 
 string LinuxParser::Kernel() {
-  // string os, version, kernel;
-  // string line;
-  // std::ifstream stream(kProcDirectory + kVersionFilename);
-  // if (stream.is_open()) {
-  //   std::getline(stream, line);
-  //   std::istringstream linestream(line);
-  //   linestream >> os >> version >> kernel;
-  // }
-  // return kernel;
-  return LinuxParser::GenericParser<string>::ParseLine(kProcDirectory + kVersionFilename,
+  return GenericParser<string>::getPosition(kProcDirectory + kVersionFilename,
       kKernalItemNumber);
 }
 
@@ -150,31 +139,21 @@ vector<int> LinuxParser::Pids() {
 
 
 // Caculate Memory utilization
-float LinuxParser::calculateMemoryUtilization(vector<float> meminfo) {
+float LinuxParser::calculateMemoryUtilization(const vector<float> &meminfo) {
     return (meminfo[kMemTotal_] - (meminfo[kMemFree_] + meminfo[kBuffers_]
     + meminfo[kCached_])) / meminfo[kMemTotal_];
 }
 
 // Read and return the system memory utilization
 float LinuxParser::MemoryUtilization() {
-  return calculateMemoryUtilization(GenericParser<float>::Parse(kProcDirectory
+  return calculateMemoryUtilization(GenericParser<float>::getValues(kProcDirectory
       + kMeminfoFilename, kMemInfoRangeToRead));
 }
 
 
 // Read and return the system Uptime
 long LinuxParser::UpTime() {
-  // string line;
-  // long uptime{0};
-  // std::ifstream system_filestream(kProcDirectory + kUptimeFilename);
-  // if(system_filestream.is_open()) {
-  //   std::getline(system_filestream, line);
-  //   std::istringstream linestream(line);
-  //   linestream >> uptime;
-  //   return uptime;
-  // }
-  // return uptime;
-  return LinuxParser::GenericParser<float>::ParseLine(kProcDirectory + kUptimeFilename,
+  return GenericParser<float>::getPosition(kProcDirectory + kUptimeFilename,
       kUptimeItemNumber);
 }
 
@@ -196,27 +175,20 @@ vector<string> LinuxParser::CpuUtilization() { return {}; }
 
 // Read and return the total number of processes
 int LinuxParser::TotalProcesses() {
-    return GenericParser<int>::Parse(kProcDirectory + kStatFilename, kTotalProcess);
+    return GenericParser<int>::getValue(kProcDirectory + kStatFilename,
+      kTotalProcess);
 }
 
 // Read and return the number of running processes
 int LinuxParser::RunningProcesses() {
-    return GenericParser<int>::Parse(kProcDirectory + kStatFilename, kRunningProcess);
+    return GenericParser<int>::getValue(kProcDirectory + kStatFilename,
+      kRunningProcess);
 }
 
 // Read and return the command associated with a process
 string LinuxParser::Command(int pid) {
-  string cmd{};
-  string line;
-  std::ifstream stream(kProcDirectory + to_string(pid) + kCmdlineFilename);
-
-  if (stream.is_open()) {
-    std::getline(stream, line);
-    std::istringstream linestream(line);
-    linestream >> cmd;
-    return cmd;
-  }
-  return cmd;
+  return GenericParser<string>::getPosition(kProcDirectory + to_string(pid)
+  + kCmdlineFilename, kCmdlineItemNumber);
 }
 
 // TODO: Read and return the memory used by a process
@@ -233,21 +205,12 @@ string LinuxParser::User(int pid[[maybe_unused]]) { return string(); }
 
 // Read and return the uptime of a process
 long LinuxParser::UpTime(int pid) {
-  return LinuxParser::UpTime() - (stol(ProcessStat(pid)[STARTTIME_IDX]) / sysconf(_SC_CLK_TCK));
+  return LinuxParser::UpTime() - stol(ProcessStat(pid, kStartTimePosition))
+  / sysconf(_SC_CLK_TCK);
 }
 
 // Helper function to collect /proc/[pid]/stat into a vector
-vector<string> LinuxParser::ProcessStat(int pid) {
-
-  vector<string> stats{};
-  string stat, line;
-  std::ifstream statfile_stream(kProcDirectory + to_string(pid) + kStatFilename);
-
-  if (statfile_stream.is_open()) {
-      std::getline(statfile_stream, line);
-      std::istringstream linestream(line);
-      while(linestream >> stat) stats.push_back(stat);
-      return stats;
-    }
-  return stats; // return /proc/[pid]/stat as a vector
+string LinuxParser::ProcessStat(int pid, const int &position) {
+  return GenericParser<string>::getPosition(kProcDirectory + to_string(pid)
+  + kStatFilename, position);
 }
