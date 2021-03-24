@@ -1,6 +1,6 @@
 #include <unistd.h>
 #include <cstddef>
-#include <set>
+#include <algorithm>
 #include <string>
 #include <vector>
 
@@ -9,16 +9,31 @@
 #include "system.h"
 #include "linux_parser.h"
 
-using std::set;
 using std::size_t;
 using std::string;
 using std::vector;
 
-// TODO: Return the system's CPU
+
+// Return the system's CPU
 Processor& System::Cpu() { return cpu_; }
 
-// TODO: Return a container composed of the system's processes
-vector<Process>& System::Processes() { return processes_; }
+// Return a container composed of the system's processes
+vector<Process>& System::Processes() {
+    vector<int> newProcesses;
+    if (!pids_.empty() && !processes_.empty()) {
+        vector<int> currentPIDs = LinuxParser::Pids();
+        std::set_difference(pids_.begin(), pids_.end(), currentPIDs.begin(),
+                            currentPIDs.end(), newProcesses.begin());
+    } else {
+        newProcesses = LinuxParser::Pids();
+    }
+    for (auto& id : newProcesses) {
+        processes_.emplace_back(Process(id));
+        pids_.insert(id);
+    }
+    std::sort(processes_.begin(), processes_.end(), std::less<Process>());
+    return processes_;
+}
 
 // TODO: Return the system's kernel identifier (string)
 std::string System::Kernel() { return LinuxParser::Kernel(); }
