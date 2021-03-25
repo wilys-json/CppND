@@ -131,7 +131,7 @@ string LinuxParser::Ram(int pid) {
   return to_string(
       GenericParser<long>::getValue(
           kProcDirectory + to_string(pid) + kStatusFilename, kProcessRAM) /
-      1000);
+      1024);
 }
 
 // Read and return the user ID associated with a process
