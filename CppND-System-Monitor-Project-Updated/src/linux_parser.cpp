@@ -76,12 +76,12 @@ long LinuxParser::Jiffies() {
 }
 
 // Read and return the number of active jiffies for a PID
-float LinuxParser::ActiveJiffies(int pid) {
+long LinuxParser::ActiveJiffies(int pid) {
   long utilization{0};
   vector<string> stats = GenericParser<string>::getValues(
       kProcDirectory + to_string(pid) + kStatFilename);
   for (auto &info : kCpuUtilInfo) utilization += stol(stats[info]);
-  return utilization / (float)HERTZ;
+  return utilization / HERTZ;
 }
 
 // Read and return the number of active jiffies for the system
