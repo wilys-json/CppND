@@ -21,31 +21,20 @@ Processor& System::Cpu() { return cpu_; }
 
 // Return a container composed of the system's processes
 vector<Process>& System::Processes() {
-  // vector<int> pids{LinuxParser::Pids()};
-  // for (const auto& pid : pids) {
-  //     if(pids_.find(pid) == pids_.end()) {
-  //         pids_.insert(pid);
-  //         processes_.emplace_back(pid);
-  //     }
-  // }
-
   vector<int> pids{LinuxParser::Pids()};
-
-  // Create a set
-  set<int> extant_pids;
-  for (Process const& process : processes_) {
-    extant_pids.insert(process.Pid());
+  for (const auto& pid : pids) {
+      if(pids_.find(pid) == pids_.end()) {
+          pids_.insert(pid);
+          processes_.emplace_back(pid);
+      }
   }
-
-  // Emplace all new processes
-  for (int pid : pids) {
-    if (extant_pids.find(pid) == extant_pids.end())
-      processes_.emplace_back(pid);
-  }
-
-  for (auto& process : processes_) process.CpuUtilization(LinuxParser::ActiveJiffies(process.Pid()), LinuxParser::Jiffies());
+  updateCpuUtilizations();
   std::sort(processes_.rbegin(), processes_.rend(), std::less<Process>());
   return processes_;
+}
+
+void System::updateCpuUtilizations() {
+  for (auto& process : processes_) process.CpuUtilization(LinuxParser::ActiveJiffies(process.Pid()), LinuxParser::Jiffies());
 }
 
 // TODO: Return the system's kernel identifier (string)
