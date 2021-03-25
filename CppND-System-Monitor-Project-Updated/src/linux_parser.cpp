@@ -91,14 +91,16 @@ long LinuxParser::ActiveJiffies(int pid) {
 // Read and return the number of active jiffies for the system
 long LinuxParser::ActiveJiffies() {
   vector<long> utilization = CpuUtilization();
-  return accumulate(utilization.begin(), utilization.end(), 0) -
+  long jiffies = accumulate(utilization.begin(), utilization.end(), 0) -
          (utilization[CPUStates::kIdle_] + utilization[CPUStates::kIOwait_]);
+  return jiffies;
 }
 
 // Read and return the number of idle jiffies for the system
 long LinuxParser::IdleJiffies() {
   vector<long> utilization = CpuUtilization();
-  return utilization[CPUStates::kIdle_] + utilization[CPUStates::kIOwait_];
+  long jiffies = utilization[CPUStates::kIdle_] + utilization[CPUStates::kIOwait_];
+  return jiffies;
 }
 
 // Read and return CPU utilization
@@ -135,35 +137,39 @@ string LinuxParser::Command(int pid) {
 
 // Read and return the memory used by a process
 string LinuxParser::Ram(int pid) {
-  return to_string(
+  string ram = to_string(
       GenericParser<long>::getValue(
           kProcDirectory + to_string(pid) + kStatusFilename, kProcessRAM) /
       1024);
+  return ram;
 }
 
 // Read and return the user ID associated with a process
 string LinuxParser::Uid(int pid) {
-  return GenericParser<string>::getValue(
+  string uid = GenericParser<string>::getValue(
       kProcDirectory + to_string(pid) + kStatusFilename, kUID);
+  return uid;
 }
 
 // Read and return the user associated with a process
 string LinuxParser::User(int pid) {
   vector<Replace> replace{Replace('x', ' '), Replace(':', ' ')};
-  return GenericParser<string>::getValue(kPasswordPath, Uid(pid), replace, {});
+  string user = GenericParser<string>::getValue(kPasswordPath, Uid(pid), replace, {});
+  return user;
 }
 
 // Read and return the uptime of a process
 long LinuxParser::UpTime(int pid) {
-  return UpTime() - stol(GenericParser<string>::getValue(
+  long uptime = UpTime() - stol(GenericParser<string>::getValue(
              kProcDirectory + to_string(pid) + kStatFilename,
              kStartTimePosition)) /
          HERTZ;
+  return uptime;
 }
 
 // Function templates
 template <typename T>
-const T LinuxParser::GenericParser<T>::getValue(const string& filename,
+T LinuxParser::GenericParser<T>::getValue(const string& filename,
                                                 const int& position) {
   string line;
   std::ifstream filestream(filename);
@@ -178,7 +184,7 @@ const T LinuxParser::GenericParser<T>::getValue(const string& filename,
 }
 
 template <typename T>
-const T LinuxParser::GenericParser<T>::getValue(const string& filename,
+T LinuxParser::GenericParser<T>::getValue(const string& filename,
                                                 const string& targetKey) {
   string line, key;
   std::ifstream filestream(filename);
@@ -195,7 +201,7 @@ const T LinuxParser::GenericParser<T>::getValue(const string& filename,
 }
 
 template <typename T>
-const T LinuxParser::GenericParser<T>::getValue(
+T LinuxParser::GenericParser<T>::getValue(
     const std::string& filename, const std::string& targetKey,
     const std::vector<Replace>& inlineReplace,
     const std::vector<Replace>& valueReplace) {
@@ -227,7 +233,7 @@ const T LinuxParser::GenericParser<T>::getValue(
 }
 
 template <typename T>
-const vector<T> LinuxParser::GenericParser<T>::getValues(
+vector<T> LinuxParser::GenericParser<T>::getValues(
     const string& filename, const string& targetKey) {
   string line, key;
   std::ifstream filestream(filename);
@@ -248,7 +254,7 @@ const vector<T> LinuxParser::GenericParser<T>::getValues(
 }
 
 template <typename T>
-const vector<T> LinuxParser::GenericParser<T>::getValues(const string& filename,
+vector<T> LinuxParser::GenericParser<T>::getValues(const string& filename,
                                                          const int& range) {
   string line, key;
   std::ifstream filestream(filename);
@@ -267,7 +273,7 @@ const vector<T> LinuxParser::GenericParser<T>::getValues(const string& filename,
 }
 
 template <typename T>
-const vector<T> LinuxParser::GenericParser<T>::getValues(
+vector<T> LinuxParser::GenericParser<T>::getValues(
     const string& filename) {
   string line;
   std::ifstream filestream(filename);

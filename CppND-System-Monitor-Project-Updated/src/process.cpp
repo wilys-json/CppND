@@ -22,12 +22,12 @@ int Process::Pid() const { return pid_; }
 float Process::CpuUtilization() const { return cpu_; }
 
 // Calculate & update CPU usage
-void Process::CpuUtilization(long active_ticks, long system_ticks) {
-  long duration_active{active_ticks - cached_active_ticks_};
-  long duration{system_ticks - cached_system_ticks_};
-  cpu_ = static_cast<float>(duration_active) / duration;
-  cached_active_ticks_ = active_ticks;
-  cached_system_ticks_ = system_ticks;
+void Process::CpuUtilization(const long& active_jiffies, const long& system_jiffies) {
+  long active_duration = active_jiffies - prev_active_jiffies_;
+  long system_duration = system_jiffies - prev_system_jiffies_;
+  cpu_ = static_cast<float>(active_duration) / system_duration;
+  prev_active_jiffies_ = active_duration;
+  prev_system_jiffies_ = system_jiffies;
 }
 
 // Return the command that generated this process

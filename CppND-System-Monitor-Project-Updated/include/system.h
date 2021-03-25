@@ -13,6 +13,7 @@ class System {
   Processor& Cpu();
   std::vector<Process>& Processes();
   void updateCpuUtilizations();
+  void updateProcesses(const std::vector<int>& pids);
   float MemoryUtilization();
   long UpTime();
   int TotalProcesses();

@@ -93,7 +93,7 @@ struct GenericParser {
     @param position : target position
     @return : the target value from the file
   */
-  static const T getValue(const std::string& filename, const int& position);
+  static T getValue(const std::string& filename, const int& position);
 
   /**
     Function template to get the value of the target key from a file.
@@ -101,8 +101,7 @@ struct GenericParser {
     @param targetKey : target key
     @return : the value of the target key
   */
-  static const T getValue(const std::string& filename,
-                          const std::string& targetKey);
+  static T getValue(const std::string& filename, const std::string& targetKey);
 
   /**
     Function template to get the value of the target key, with replacements.
@@ -112,7 +111,7 @@ struct GenericParser {
     @param valueReplace : char(s) to be replaced in return value
     @return : the value of the target key
   */
-  static const T getValue(const std::string& filename,
+  static T getValue(const std::string& filename,
                           const std::string& targetKey,
                           const std::vector<Replace>& inlineReplace,
                           const std::vector<Replace>& valueReplace);
@@ -122,7 +121,7 @@ struct GenericParser {
     @param filename : name of the file
     @return : the vector of all values in the file
   */
-  static const std::vector<T> getValues(const std::string& filename);
+  static std::vector<T> getValues(const std::string& filename);
 
   /**
     Function template to collect values of the target key into a vector.
@@ -130,7 +129,7 @@ struct GenericParser {
     @param targetKey : target key
     @return : the vecotr of values of the target key
   */
-  static const std::vector<T> getValues(const std::string& filename,
+  static std::vector<T> getValues(const std::string& filename,
                                         const std::string& targetKey);
 
   /**
@@ -139,7 +138,7 @@ struct GenericParser {
     @param range : number of items to collect
     @return : the vector of values in the defined range
   */
-  static const std::vector<T> getValues(const std::string& filename,
+  static std::vector<T> getValues(const std::string& filename,
                                         const int& range);
 };
 
