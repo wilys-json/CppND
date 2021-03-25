@@ -41,6 +41,6 @@ string Process::User() { return LinuxParser::User(Pid()); }
 // Return the age of this process (in seconds)
 long int Process::UpTime() const { return LinuxParser::UpTime(Pid()); }
 
-bool Process::operator>(Process const& other) const {
-  return CpuUtilization() > other.CpuUtilization();
+bool Process::operator<(Process const& other) const {
+  return CpuUtilization() < other.CpuUtilization();
 }
