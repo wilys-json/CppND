@@ -19,13 +19,15 @@ Process::Process(const int& pid) : pid_(pid) {}
 int Process::Pid() const { return pid_; }
 
 // Return this process's CPU utilization
-float Process::CpuUtilization() const { return cpuUtil_; }
+float Process::CpuUtilization() const { return cpu_; }
 
 // Calculate & update CPU usage
-void Process::CpuUtilization(const long& active_jiff, const long& system_jiff) {
-    cpuUtil_ = ((active_jiff - prev_active_jiffies_) / (system_jiff - prev_system_jiffies_)) * 1.0;
-    prev_active_jiffies_ = active_jiff;
-    prev_system_jiffies_ = system_jiff;
+void Process::CpuUtilization(long active_ticks, long system_ticks) {
+  long duration_active{active_ticks - cached_active_ticks_};
+  long duration{system_ticks - cached_system_ticks_};
+  cpu_ = static_cast<float>(duration_active) / duration;
+  cached_active_ticks_ = active_ticks;
+  cached_system_ticks_ = system_ticks;
 }
 
 // Return the command that generated this process
@@ -39,6 +41,6 @@ string Process::User() { return LinuxParser::User(Pid()); }
 // Return the age of this process (in seconds)
 long int Process::UpTime() const { return LinuxParser::UpTime(Pid()); }
 
-bool Process::operator<(Process const& other) const {
-  return CpuUtilization() < other.CpuUtilization();
+bool Process::operator>(Process const& other) const {
+  return CpuUtilization() > other.CpuUtilization();
 }
