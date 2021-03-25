@@ -22,6 +22,7 @@ Processor& System::Cpu() { return cpu_; }
 vector<Process>& System::Processes() {
   processes_.clear();
   for (auto& pid : LinuxParser::Pids()) processes_.emplace_back(Process(pid));
+  for (auto& process : processes_) process.CpuUtilization(LinuxParser::ActiveJiffies(process.Pid()), LinuxParser::Jiffies());
   std::sort(processes_.rbegin(), processes_.rend(), std::less<Process>());
   return processes_;
 }

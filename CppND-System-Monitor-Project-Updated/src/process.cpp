@@ -19,14 +19,13 @@ Process::Process(const int& pid) : pid_(pid) {}
 int Process::Pid() const { return pid_; }
 
 // Return this process's CPU utilization
-float Process::CpuUtilization() const {
-  try {
-    const long active_jiffies = LinuxParser::ActiveJiffies(Pid());
-    const float seconds = 1.0 * (LinuxParser::UpTime() - UpTime());
-    return active_jiffies / seconds;
-  } catch (...) {
-    return 0;
-  }
+float Process::CpuUtilization() const { return cpuUtil_; }
+
+// Calculate & update CPU usage
+void Process::CpuUtilization(const long& active_jiff, const long& system_jiff) {
+    cpuUtil_ = static_cast<float>((active_jiff - prev_active_jiffies_)) / (system_jiff - prev_system_jiffies_);
+    prev_active_jiffies_ = active_jiff;
+    prev_system_jiffies_ = system_jiff;
 }
 
 // Return the command that generated this process
