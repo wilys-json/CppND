@@ -21,7 +21,8 @@ class System {
 
  private:
   Processor cpu_;
-  std::vector<Process> processes_ = {};
+  std::vector<Process> processes_{};
+  std::set<int> pids_{};
 };
 
 #endif

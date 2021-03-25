@@ -23,7 +23,7 @@ float Process::CpuUtilization() const { return cpuUtil_; }
 
 // Calculate & update CPU usage
 void Process::CpuUtilization(const long& active_jiff, const long& system_jiff) {
-    cpuUtil_ = static_cast<float>((active_jiff - prev_active_jiffies_)) / (system_jiff - prev_system_jiffies_);
+    cpuUtil_ = ((active_jiff - prev_active_jiffies_) / (system_jiff - prev_system_jiffies_)) * 1.0;
     prev_active_jiffies_ = active_jiff;
     prev_system_jiffies_ = system_jiff;
 }
