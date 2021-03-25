@@ -13,12 +13,7 @@ using std::string;
 using std::to_string;
 using std::vector;
 
-Process::Process(const int& pid) : pid_(pid) {
-  user_ = LinuxParser::User(pid);
-  command_ = LinuxParser::Command(pid);
-  uptime_ = LinuxParser::UpTime(pid);
-  ram_ = LinuxParser::Ram(pid);
-}
+Process::Process(const int& pid) : pid_(pid) {}
 
 // Return this process's ID
 int Process::Pid() const { return pid_; }
@@ -34,15 +29,15 @@ float Process::CpuUtilization() const {
 }
 
 // Return the command that generated this process
-string Process::Command() const { return command_; }
+string Process::Command() const { return LinuxParser::Command(pid_); }
 // Return this process's memory utilization
-string Process::Ram() const { return ram_; }
+string Process::Ram() const { return LinuxParser::Ram(pid_); }
 
 // Return the user (name) that generated this process
-string Process::User() const { return user_; }
+string Process::User() const { return LinuxParser::User(pid_); }
 
 // Return the age of this process (in seconds)
-long int Process::UpTime() const { return uptime_; }
+long int Process::UpTime() const { return LinuxParser::UpTime(pid_); }
 
 bool Process::operator<(Process const& other) const {
   return CpuUtilization() < other.CpuUtilization();
