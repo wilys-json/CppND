@@ -83,7 +83,7 @@ long LinuxParser::ActiveJiffies(int pid) {
     vector<string> stats = GenericParser<string>::getValues(kProcDirectory +
     to_string(pid) + kStatFilename);
     for (auto &info : kCpuUtilInfo) utilization += stol(stats[info]);
-    return utilization;
+    return utilization / HERTZ;
 }
 
 // Read and return the number of active jiffies for the system
@@ -142,8 +142,8 @@ string LinuxParser::User(int pid) {
 
 // Read and return the uptime of a process
 long LinuxParser::UpTime(int pid) {
-  return UpTime() - stol(GenericParser<string>::getValue(kProcDirectory
-      + to_string(pid) + kStatFilename, kStartTimePosition)) / HERTZ;
+  return stol(GenericParser<string>::getValues(kProcDirectory
+      + to_string(pid) + kStatFilename)[kStartTimePosition]) / HERTZ;
 }
 
 

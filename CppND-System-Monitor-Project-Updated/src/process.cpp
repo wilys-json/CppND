@@ -23,20 +23,24 @@ int Process::Pid() const { return pid_; }
 
 // Return this process's CPU utilization
 float Process::CpuUtilization() const {
-    return 100.0 * ((LinuxParser::ActiveJiffies(Pid()) / HERTZ) / LinuxParser::UpTime());
+  try {
+    float seconds = LinuxParser::UpTime() - UpTime();
+    return LinuxParser::ActiveJiffies(Pid()) / seconds;
+  } catch (...) {
+    return 0;
+  }
 }
 
 // Return the command that generated this process
-string Process::Command() { return command_; }
-
+string Process::Command() const { return command_; }
 // Return this process's memory utilization
-string Process::Ram() { return ram_; }
+string Process::Ram() const { return ram_; }
 
 // Return the user (name) that generated this process
-string Process::User() { return user_; }
+string Process::User() const { return user_; }
 
 // Return the age of this process (in seconds)
-long int Process::UpTime() { return uptime_; }
+long int Process::UpTime() const { return uptime_; }
 
 bool Process::operator<(Process const& other) const {
     return CpuUtilization() < other.CpuUtilization();
