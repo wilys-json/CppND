@@ -148,7 +148,7 @@ string LinuxParser::User(int pid) {
 
 // Read and return the uptime of a process
 long LinuxParser::UpTime(int pid) {
-  return stol(GenericParser<string>::getValue(
+  return UpTIme() - stol(GenericParser<string>::getValue(
              kProcDirectory + to_string(pid) + kStatFilename,
              kStartTimePosition)) /
          HERTZ;
