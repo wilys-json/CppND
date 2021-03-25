@@ -145,8 +145,7 @@ string LinuxParser::User(int pid) {
 long LinuxParser::UpTime(int pid) {
   return stol(GenericParser<string>::getValue(
              kProcDirectory + to_string(pid) + kStatFilename,
-             kStartTimePosition)) /
-         HERTZ;
+             kStartTimePosition)) / HERTZ;
 }
 
 // Function templates
