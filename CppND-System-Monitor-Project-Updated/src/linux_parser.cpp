@@ -1,40 +1,38 @@
-#include <dirent.h>
-#include <string>
-#include <vector>
-#include <numeric>
-#include <iostream>
-
 #include "linux_parser.h"
 
+#include <dirent.h>
+
+#include <iostream>
+#include <numeric>
+#include <string>
+#include <vector>
+
+using std::accumulate;
 using std::stof;
-using std::stol;
 using std::stoi;
+using std::stol;
 using std::string;
 using std::to_string;
 using std::vector;
-using std::accumulate;
-
 
 string LinuxParser::OperatingSystem() {
   vector<Replace> inlineReplace{Replace(' ', '_'), Replace('=', ' '),
                                 Replace('"', ' ')};
   vector<Replace> valueReplace{Replace('_', ' ')};
-  return GenericParser<string>::getValue(kOSPath, kOSName,
-      inlineReplace, valueReplace);
+  return GenericParser<string>::getValue(kOSPath, kOSName, inlineReplace,
+                                         valueReplace);
 }
-
 
 string LinuxParser::Kernel() {
   return GenericParser<string>::getValue(kProcDirectory + kVersionFilename,
-      kKernalItemNumber);
+                                         kKernalItemNumber);
 }
-
 
 // BONUS: Update this to use std::filesystem
 vector<int> LinuxParser::Pids() {
   vector<int> pids;
-  DIR* directory = opendir(kProcDirectory.c_str());
-  struct dirent* file;
+  DIR *directory = opendir(kProcDirectory.c_str());
+  struct dirent *file;
   while ((file = readdir(directory)) != nullptr) {
     // Is this a directory?
     if (file->d_type == DT_DIR) {
@@ -50,47 +48,47 @@ vector<int> LinuxParser::Pids() {
   return pids;
 }
 
-
 // Caculate Memory utilization
 float LinuxParser::calculateMemoryUtilization(const vector<float> &meminfo) {
-    return (meminfo[kMemTotal_] - (meminfo[kMemFree_] + meminfo[kBuffers_]
-    + meminfo[kCached_])) / meminfo[kMemTotal_];
+  return (meminfo[kMemTotal_] -
+          (meminfo[kMemFree_] + meminfo[kBuffers_] + meminfo[kCached_])) /
+         meminfo[kMemTotal_];
 }
 
 // Read and return the system memory utilization
 float LinuxParser::MemoryUtilization() {
-  return calculateMemoryUtilization(GenericParser<float>::getValues(kProcDirectory
-      + kMeminfoFilename, kMemInfoRangeToRead));
+  return calculateMemoryUtilization(GenericParser<float>::getValues(
+      kProcDirectory + kMeminfoFilename, kMemInfoRangeToRead));
 }
-
 
 // Read and return the system Uptime
 long LinuxParser::UpTime() {
   return GenericParser<long>::getValue(kProcDirectory + kUptimeFilename,
-      kUptimeItemNumber);
+                                       kUptimeItemNumber);
 }
 
 // Read and return the number of jiffies for the system
 long LinuxParser::Jiffies() {
   vector<long> utilization = CpuUtilization();
-  return accumulate(utilization.begin(), utilization.end(), 0)
-    - (utilization[CPUStates::kGuest_] + utilization[CPUStates::kGuestNice_]);
+  return accumulate(utilization.begin(), utilization.end(), 0) -
+         (utilization[CPUStates::kGuest_] +
+          utilization[CPUStates::kGuestNice_]);
 }
 
 // Read and return the number of active jiffies for a PID
-long LinuxParser::ActiveJiffies(int pid) {
-    long utilization{0};
-    vector<string> stats = GenericParser<string>::getValues(kProcDirectory +
-    to_string(pid) + kStatFilename);
-    for (auto &info : kCpuUtilInfo) utilization += stol(stats[info]);
-    return utilization / HERTZ;
+float LinuxParser::ActiveJiffies(int pid) {
+  long utilization{0};
+  vector<string> stats = GenericParser<string>::getValues(
+      kProcDirectory + to_string(pid) + kStatFilename);
+  for (auto &info : kCpuUtilInfo) utilization += stol(stats[info]);
+  return utilization / (float)HERTZ;
 }
 
 // Read and return the number of active jiffies for the system
 long LinuxParser::ActiveJiffies() {
   vector<long> utilization = CpuUtilization();
-  return accumulate(utilization.begin(), utilization.end(), 0)
-    - (utilization[CPUStates::kIdle_] + utilization[CPUStates::kIOwait_]);
+  return accumulate(utilization.begin(), utilization.end(), 0) -
+         (utilization[CPUStates::kIdle_] + utilization[CPUStates::kIOwait_]);
 }
 
 // Read and return the number of idle jiffies for the system
@@ -101,37 +99,40 @@ long LinuxParser::IdleJiffies() {
 
 // Read and return CPU utilization
 vector<long> LinuxParser::CpuUtilization() {
- return GenericParser<long>::getValues(kProcDirectory + kStatFilename, kCPUKey);
+  return GenericParser<long>::getValues(kProcDirectory + kStatFilename,
+                                        kCPUKey);
 }
 
 // Read and return the total number of processes
 int LinuxParser::TotalProcesses() {
-    return GenericParser<int>::getValue(kProcDirectory + kStatFilename,
-      kTotalProcess);
+  return GenericParser<int>::getValue(kProcDirectory + kStatFilename,
+                                      kTotalProcess);
 }
 
 // Read and return the number of running processes
 int LinuxParser::RunningProcesses() {
-    return GenericParser<int>::getValue(kProcDirectory + kStatFilename,
-      kRunningProcess);
+  return GenericParser<int>::getValue(kProcDirectory + kStatFilename,
+                                      kRunningProcess);
 }
 
 // Read and return the command associated with a process
 string LinuxParser::Command(int pid) {
-  return GenericParser<string>::getValue(kProcDirectory + to_string(pid)
-  + kCmdlineFilename, kCmdlineItemNumber);
+  return GenericParser<string>::getValue(
+      kProcDirectory + to_string(pid) + kCmdlineFilename, kCmdlineItemNumber);
 }
 
 // Read and return the memory used by a process
 string LinuxParser::Ram(int pid) {
-  return to_string(GenericParser<long>::getValue(kProcDirectory
-      + to_string(pid) + kStatusFilename, kProcessRAM) / 1000);
+  return to_string(
+      GenericParser<long>::getValue(
+          kProcDirectory + to_string(pid) + kStatusFilename, kProcessRAM) /
+      1000);
 }
 
 // Read and return the user ID associated with a process
 string LinuxParser::Uid(int pid) {
-  return GenericParser<string>::getValue(kProcDirectory + to_string(pid)
-  + kStatusFilename, kUID);
+  return GenericParser<string>::getValue(
+      kProcDirectory + to_string(pid) + kStatusFilename, kUID);
 }
 
 // Read and return the user associated with a process
@@ -142,133 +143,129 @@ string LinuxParser::User(int pid) {
 
 // Read and return the uptime of a process
 long LinuxParser::UpTime(int pid) {
-  return stol(GenericParser<string>::getValues(kProcDirectory
-      + to_string(pid) + kStatFilename)[kStartTimePosition]) / HERTZ;
+  return stol(GenericParser<string>::getValue(
+             kProcDirectory + to_string(pid) + kStatFilename,
+             kStartTimePosition)) /
+         HERTZ;
 }
-
 
 // Function templates
 template <typename T>
 const T LinuxParser::GenericParser<T>::getValue(const string &filename,
-const int &position) {
- string line;
- std::ifstream filestream(filename);
- T value = T();
- if (filestream.is_open()) {
-     std::getline(filestream, line);
-     std::istringstream linestream(line);
-     for (int i = 0; i < position; i++) linestream >> value;
-        return value;
- }
- return value;
-}
-
-
-template <typename T>
-const T LinuxParser::GenericParser<T>::getValue(const string &filename,
-const string& targetKey) {
- string line, key;
- std::ifstream filestream(filename);
- T value = T();
- if (filestream.is_open()) {
-     while (std::getline(filestream, line)) {
-         std::istringstream linestream(line);
-         while (linestream >> key >> value) {
-             if(key == targetKey) return value;
-            }
-        }
-    }
+                                                const int &position) {
+  string line;
+  std::ifstream filestream(filename);
+  T value = T();
+  if (filestream.is_open()) {
+    std::getline(filestream, line);
+    std::istringstream linestream(line);
+    for (int i = 0; i < position; i++) linestream >> value;
+    return value;
+  }
   return value;
 }
 
-
 template <typename T>
-const T LinuxParser::GenericParser<T>::getValue(const std::string &filename,
-const std::string &targetKey, const std::vector<Replace> &inlineReplace,
-const std::vector<Replace> &valueReplace) {
- string line, key;
- std::ifstream filestream(filename);
- T value = T();
- if (filestream.is_open()) {
-     while (std::getline(filestream, line)) {
-        if (!inlineReplace.empty()) {
-            for (auto &lreplace : inlineReplace) {
-                std::replace(line.begin(), line.end(),
-                             lreplace.from, lreplace.to);
-            }
-        }
-        std::istringstream linestream(line);
-        while (linestream >> key >> value) {
-            if(key == targetKey) {
-                if (!valueReplace.empty()) {
-                    for (auto &vreplace : valueReplace) {
-                        std::replace(line.begin(), line.end(),
-                                     vreplace.from, vreplace.to);
-                    }
-                }
-                return value;
-            }
-         }
+const T LinuxParser::GenericParser<T>::getValue(const string &filename,
+                                                const string &targetKey) {
+  string line, key;
+  std::ifstream filestream(filename);
+  T value = T();
+  if (filestream.is_open()) {
+    while (std::getline(filestream, line)) {
+      std::istringstream linestream(line);
+      while (linestream >> key >> value) {
+        if (key == targetKey) return value;
       }
-   }
- return value;
+    }
+  }
+  return value;
 }
 
-
 template <typename T>
-const vector<T> LinuxParser::GenericParser<T>::getValues(const string &filename,
-    const string& targetKey) {
-    string line, key;
-    std::ifstream filestream(filename);
-    T value;
-    vector<T> collector{};
-    if (filestream.is_open()) {
-        while (std::getline(filestream, line)) {
-            std::istringstream linestream(line);
-            while (linestream >> key) {
-            if(key == targetKey) {
-                while (linestream >> value) collector.emplace_back(value);
-                return collector;
-                }
-            }
+const T LinuxParser::GenericParser<T>::getValue(
+    const std::string &filename, const std::string &targetKey,
+    const std::vector<Replace> &inlineReplace,
+    const std::vector<Replace> &valueReplace) {
+  string line, key;
+  std::ifstream filestream(filename);
+  T value = T();
+  if (filestream.is_open()) {
+    while (std::getline(filestream, line)) {
+      if (!inlineReplace.empty()) {
+        for (auto &lreplace : inlineReplace) {
+          std::replace(line.begin(), line.end(), lreplace.from, lreplace.to);
         }
+      }
+      std::istringstream linestream(line);
+      while (linestream >> key >> value) {
+        if (key == targetKey) {
+          if (!valueReplace.empty()) {
+            for (auto &vreplace : valueReplace) {
+              std::replace(line.begin(), line.end(), vreplace.from,
+                           vreplace.to);
+            }
+          }
+          return value;
+        }
+      }
     }
-    return collector;
+  }
+  return value;
 }
 
-
 template <typename T>
-const vector<T> LinuxParser::GenericParser<T>::getValues(const string &filename,
-    const int &range) {
-    string line, key;
-    std::ifstream filestream(filename);
-    T value;
-    vector<T> collector{};
-    if (filestream.is_open()) {
-      for (int i = 0; i < range; i++) {
-          std::getline(filestream, line);
-          std::istringstream linestream(line);
-          linestream >> key >> value;
-          collector.emplace_back(value);
+const vector<T> LinuxParser::GenericParser<T>::getValues(
+    const string &filename, const string &targetKey) {
+  string line, key;
+  std::ifstream filestream(filename);
+  T value;
+  vector<T> collector{};
+  if (filestream.is_open()) {
+    while (std::getline(filestream, line)) {
+      std::istringstream linestream(line);
+      while (linestream >> key) {
+        if (key == targetKey) {
+          while (linestream >> value) collector.emplace_back(value);
+          return collector;
+        }
       }
-    return collector;
     }
+  }
   return collector;
 }
 
-
 template <typename T>
-const vector<T> LinuxParser::GenericParser<T>::getValues(const string &filename)
-{
-    string line;
-    std::ifstream filestream(filename);
-    T value;
-    vector<T> collector{};
-    if (filestream.is_open()) {
-        std::getline(filestream, line);
-        std::istringstream linestream(line);
-        while(linestream >> value) collector.emplace_back(value);
-        return collector;
+const vector<T> LinuxParser::GenericParser<T>::getValues(const string &filename,
+                                                         const int &range) {
+  string line, key;
+  std::ifstream filestream(filename);
+  T value;
+  vector<T> collector{};
+  if (filestream.is_open()) {
+    for (int i = 0; i < range; i++) {
+      std::getline(filestream, line);
+      std::istringstream linestream(line);
+      linestream >> key >> value;
+      collector.emplace_back(value);
     }
     return collector;
+  }
+  return collector;
+}
+
+template <typename T>
+const vector<T> LinuxParser::GenericParser<T>::getValues(
+    const string &filename) {
+  string line;
+  std::ifstream filestream(filename);
+  T value;
+  vector<T> collector{};
+  if (filestream.is_open()) {
+    std::getline(filestream, line);
+    std::istringstream linestream(line);
+    while (linestream >> value) collector.emplace_back(value);
+    return collector;
+  }
+  return collector;
 }

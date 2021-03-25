@@ -1,19 +1,17 @@
-#include <string>
-#include <sstream>
-#include <iomanip>
 #include "format.h"
 
-using std::string;
-using std::ostringstream;
-using std::setw;
-using std::setfill;
+#include <iomanip>
+#include <sstream>
+#include <string>
 
+using std::ostringstream;
+using std::setfill;
+using std::setw;
+using std::string;
 
 string Format::ElapsedTime(long seconds) {
-
   ostringstream time;
   int secs, mins, hours;
-
 
   secs = seconds % SEC_IN_MIN;
   seconds /= SEC_IN_MIN;

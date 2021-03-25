@@ -6,11 +6,9 @@
 
 #include <fstream>
 #include <regex>
+#include <stdexcept>
 #include <string>
 #include <vector>
-#include <stdexcept>
-
-
 
 namespace LinuxParser {
 
@@ -39,13 +37,7 @@ const int kKernalItemNumber{3};
 const int kUptimeItemNumber{1};
 const int kCmdlineItemNumber{1};
 const int kMemInfoRangeToRead{5};
-enum MemInfo {
-  kMemTotal_ = 0,
-  kMemFree_,
-  kMemAvailable_,
-  kBuffers_,
-  kCached_
-};
+enum MemInfo { kMemTotal_ = 0, kMemFree_, kMemAvailable_, kBuffers_, kCached_ };
 
 float calculateMemoryUtilization(const std::vector<float> &meminfo);
 float MemoryUtilization();
@@ -73,11 +65,11 @@ enum CPUStates {
 std::vector<long> CpuUtilization();
 long Jiffies();
 long ActiveJiffies();
-long ActiveJiffies(int pid);
+float ActiveJiffies(int pid);
 long IdleJiffies();
 
 // Processes
-const int kStartTimePosition{21};
+const int kStartTimePosition{22};
 const std::vector<int> kCpuUtilInfo{13, 14, 15, 16};
 
 std::string Command(int pid);
@@ -111,7 +103,7 @@ struct GenericParser {
     @return : the value of the target key
   */
   static const T getValue(const std::string &filename,
-    const std::string &targetKey);
+                          const std::string &targetKey);
 
   /**
     Function template to get the value of the target key, with replacements.
@@ -122,8 +114,9 @@ struct GenericParser {
     @return : the value of the target key
   */
   static const T getValue(const std::string &filename,
-    const std::string &targetKey, const std::vector<Replace> &inlineReplace,
-    const std::vector<Replace> &valueReplace);
+                          const std::string &targetKey,
+                          const std::vector<Replace> &inlineReplace,
+                          const std::vector<Replace> &valueReplace);
 
   /**
     Function template to collect all values from a file into a vector.
@@ -139,7 +132,7 @@ struct GenericParser {
     @return : the vecotr of values of the target key
   */
   static const std::vector<T> getValues(const std::string &filename,
-    const std::string &targetKey);
+                                        const std::string &targetKey);
 
   /**
     Function template to collect values of keys in a defined range.
@@ -148,9 +141,9 @@ struct GenericParser {
     @return : the vector of values in the defined range
   */
   static const std::vector<T> getValues(const std::string &filename,
-    const int &range);
+                                        const int &range);
 };
 
-}; // namespace LinuxParser
+};  // namespace LinuxParser
 
 #endif

@@ -1,10 +1,12 @@
+#include "process.h"
+
 #include <unistd.h>
+
 #include <cctype>
 #include <sstream>
 #include <string>
 #include <vector>
 
-#include "process.h"
 #include "linux_parser.h"
 
 using std::string;
@@ -24,8 +26,8 @@ int Process::Pid() const { return pid_; }
 // Return this process's CPU utilization
 float Process::CpuUtilization() const {
   try {
-    float seconds = LinuxParser::UpTime() - UpTime();
-    return LinuxParser::ActiveJiffies(Pid()) / seconds;
+    return LinuxParser::ActiveJiffies(Pid()) /
+           (LinuxParser::UpTime() - UpTime());
   } catch (...) {
     return 0;
   }
@@ -43,5 +45,5 @@ string Process::User() const { return user_; }
 long int Process::UpTime() const { return uptime_; }
 
 bool Process::operator<(Process const& other) const {
-    return CpuUtilization() < other.CpuUtilization();
+  return CpuUtilization() < other.CpuUtilization();
 }

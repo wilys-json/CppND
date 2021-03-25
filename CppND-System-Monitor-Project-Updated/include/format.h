@@ -8,7 +8,7 @@
 #define HOUR_IN_DAY 24
 
 namespace Format {
-std::string ElapsedTime(long times);  
-};                                    // namespace Format
+std::string ElapsedTime(long times);
+};  // namespace Format
 
 #endif
