@@ -117,16 +117,19 @@ int LinuxParser::RunningProcesses() {
 
 // Read and return the command associated with a process
 string LinuxParser::Command(int pid) {
-  return GenericParser<string>::getValue(
-      kProcDirectory + to_string(pid) + kCmdlineFilename, kCmdlineItemNumber);
+    string value="";
+    std::ifstream filestream(kProcDirectory + to_string(pid) + kCmdlineFilename);
+    if (filestream.is_open()) {
+      std::getline(filestream, value);
+      return value;
+    }
+    return value;
 }
 
 // Read and return the memory used by a process
 string LinuxParser::Ram(int pid) {
-  return to_string(
-      GenericParser<long>::getValue(
-          kProcDirectory + to_string(pid) + kStatusFilename, kProcessRAM) /
-      1000);
+  return to_string( GenericParser<long>::getValue(kProcDirectory
+      + to_string(pid) + kStatusFilename, kProcessRAM) / 1000);
 }
 
 // Read and return the user ID associated with a process
@@ -147,6 +150,7 @@ long LinuxParser::UpTime(int pid) {
              kProcDirectory + to_string(pid) + kStatFilename,
              kStartTimePosition)) / HERTZ;
 }
+
 
 // Function templates
 template <typename T>
