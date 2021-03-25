@@ -1,9 +1,9 @@
 #ifndef SYSTEM_H
 #define SYSTEM_H
 
-#include <set>
 #include <string>
 #include <vector>
+#include <set>
 
 #include "process.h"
 #include "processor.h"

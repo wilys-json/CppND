@@ -20,16 +20,11 @@ Processor& System::Cpu() { return cpu_; }
 
 // Return a container composed of the system's processes
 vector<Process>& System::Processes() {
-  vector<int> newProcesses;
-  if (!pids_.empty() && !processes_.empty()) {
-      vector<int> currentPIDs = LinuxParser::Pids();
-      set_difference(currentPIDs.begin(), currentPIDs.end(), pids_.begin(), pids_.end(), newProcesses.begin());
-  } else {
-      newProcesses = LinuxParser::Pids();
-  }
-  for (auto& pid : newProcesses) {
-      processes_.emplace_back(Process(pid));
-      pids_.insert(pid);
+  for (auto& pid : LinuxParser::Pids()) {
+      if(pids_.find(pid) == pids_.end()) {
+          pids_.insert(pid);
+          processes_.emplace_back(pid);
+      }
   }
   for (auto& process : processes_) process.CpuUtilization(LinuxParser::ActiveJiffies(process.Pid()), LinuxParser::Jiffies());
   std::sort(processes_.rbegin(), processes_.rend(), std::less<Process>());
