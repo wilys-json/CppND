@@ -73,7 +73,7 @@ long LinuxParser::UpTime() {
 
 // Read and return the number of jiffies for the system
 long LinuxParser::Jiffies() {
-  vector<long> utilization = CpuUtilization();
+  const vector<long> utilization = CpuUtilization();
   return accumulate(utilization.begin(), utilization.end(), 0) -
          (utilization[CPUStates::kGuest_] +
           utilization[CPUStates::kGuestNice_]);
@@ -90,7 +90,7 @@ long LinuxParser::ActiveJiffies(int pid) {
 
 // Read and return the number of active jiffies for the system
 long LinuxParser::ActiveJiffies() {
-  vector<long> utilization = CpuUtilization();
+  const vector<long> utilization = CpuUtilization();
   long jiffies = accumulate(utilization.begin(), utilization.end(), 0) -
          (utilization[CPUStates::kIdle_] + utilization[CPUStates::kIOwait_]);
   return jiffies;
@@ -98,7 +98,7 @@ long LinuxParser::ActiveJiffies() {
 
 // Read and return the number of idle jiffies for the system
 long LinuxParser::IdleJiffies() {
-  vector<long> utilization = CpuUtilization();
+  const vector<long> utilization = CpuUtilization();
   long jiffies = utilization[CPUStates::kIdle_] + utilization[CPUStates::kIOwait_];
   return jiffies;
 }
@@ -244,7 +244,7 @@ vector<T> LinuxParser::GenericParser<T>::getValues(
       std::istringstream linestream(line);
       while (linestream >> key) {
         if (key == targetKey) {
-          while (linestream >> value) collector.emplace_back(value);
+          while (linestream >> value) collector.push_back(value);
           return collector;
         }
       }
@@ -265,7 +265,7 @@ vector<T> LinuxParser::GenericParser<T>::getValues(const string& filename,
       std::getline(filestream, line);
       std::istringstream linestream(line);
       linestream >> key >> value;
-      collector.emplace_back(value);
+      collector.push_back(value);
     }
     return collector;
   }
@@ -282,7 +282,7 @@ vector<T> LinuxParser::GenericParser<T>::getValues(
   if (filestream.is_open()) {
     std::getline(filestream, line);
     std::istringstream linestream(line);
-    while (linestream >> value) collector.emplace_back(value);
+    while (linestream >> value) collector.push_back(value);
     return collector;
   }
   return collector;
