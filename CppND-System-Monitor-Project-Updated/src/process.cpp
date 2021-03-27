@@ -22,7 +22,9 @@ Process::Process(const int& pid) : pid_(pid) {
 int Process::Pid() const { return pid_; }
 
 // Return this process's CPU utilization
-float Process::CpuUtilization() const { return cpu_; }
+float Process::CpuUtilization() const {
+    return cpu_;
+}
 
 // Calculate & update CPU usage
 void Process::CpuUtilization(const long& system_jiffies) {
@@ -44,6 +46,6 @@ string Process::User() const { return LinuxParser::User(Pid()); }
 // Return the age of this process (in seconds)
 long int Process::UpTime() const { return LinuxParser::UpTime(Pid()); }
 
-bool Process::operator>(Process const& other) const {
-  return CpuUtilization() > other.CpuUtilization();
+bool Process::operator<(Process const& other) const {
+  return CpuUtilization() < other.CpuUtilization();
 }

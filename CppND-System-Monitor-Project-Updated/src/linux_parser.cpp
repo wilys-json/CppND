@@ -140,7 +140,7 @@ string LinuxParser::Ram(int pid) {
   string ram = to_string(
       GenericParser<long>::getValue(
           kProcDirectory + to_string(pid) + kStatusFilename, kProcessRAM) /
-      1024);
+      1000);
   return ram;
 }
 
