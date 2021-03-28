@@ -22,8 +22,8 @@ Processor& System::Cpu() { return cpu_; }
 // Return a container composed of the system's processes
 vector<Process>& System::Processes() {
   vector<int> pids{LinuxParser::Pids()};
-  updateProcesses(pids);
-  updateCpuUtilizations();
+  processes_.clear();
+  for (auto& pid : pids) processes_.push_back(pid);
   std::sort(processes_.rbegin(), processes_.rend(), std::less<Process>());
   return processes_;
 }
@@ -35,15 +35,6 @@ void System::updateProcesses(const vector<int>& pids) {
           pids_.insert(pid);
           processes_.emplace_back(pid);
       }
-  }
-}
-
-
-void System::updateCpuUtilizations() {
-  for (auto& process : processes_) {
-    const long process_jiffies = LinuxParser::ActiveJiffies(process.Pid());
-    const long system_jiffies = LinuxParser::Jiffies();
-    process.CpuUtilization(process_jiffies, system_jiffies);
   }
 }
 

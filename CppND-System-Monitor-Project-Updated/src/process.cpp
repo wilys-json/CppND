@@ -13,30 +13,31 @@ using std::string;
 using std::to_string;
 using std::vector;
 
-Process::Process(const int& pid) : pid_(pid) {}
+Process::Process(const int& pid) : pid_(pid) {
+  command_ = LinuxParser::Command(pid_);
+  user_ = LinuxParser::User(pid_);
+}
 
 // Return this process's ID
 int Process::Pid() const { return pid_; }
 
-// Return this process's CPU utilization
-float Process::CpuUtilization() const { return cpu_; }
 
-// Calculate & update CPU usage
-void Process::CpuUtilization(const long& active_jiffies, const long& system_jiffies) {
-  long active_duration = active_jiffies - prev_active_jiffies_;
-  long system_duration = system_jiffies - prev_system_jiffies_;
-  cpu_ = static_cast<float>(active_duration) / system_duration;
-  prev_active_jiffies_ = active_duration;
-  prev_system_jiffies_ = system_jiffies;
+// Return this process's CPU utilization
+float Process::CpuUtilization() const {
+  const long jiffies = LinuxParser::ActiveJiffies(Pid());
+  const long uptime =  UpTime();
+  return (jiffies * 1.0) / uptime;
 }
 
+
 // Return the command that generated this process
-string Process::Command() { return LinuxParser::Command(pid_); }
+string Process::Command() const { return command_; }
+
 // Return this process's memory utilization
 string Process::Ram() { return LinuxParser::Ram(pid_); }
 
 // Return the user (name) that generated this process
-string Process::User() { return LinuxParser::User(pid_); }
+string Process::User() const { return user_; }
 
 // Return the age of this process (in seconds)
 long int Process::UpTime() const { return LinuxParser::UpTime(pid_); }
