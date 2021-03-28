@@ -28,16 +28,6 @@ vector<Process>& System::Processes() {
   return processes_;
 }
 
-
-void System::updateProcesses(const vector<int>& pids) {
-  for (const auto& pid : pids) {
-      if (pids_.find(pid) == pids_.end()) {
-          pids_.insert(pid);
-          processes_.emplace_back(pid);
-      }
-  }
-}
-
 // TODO: Return the system's kernel identifier (string)
 std::string System::Kernel() { return LinuxParser::Kernel(); }
 
