@@ -24,7 +24,7 @@ int Process::Pid() const { return pid_; }
 
 // Return this process's CPU utilization
 float Process::CpuUtilization() const {
-  const long jiffies = LinuxParser::ActiveJiffies(Pid());
+  const long jiffies = LinuxParser::ActiveJiffies(Pid()) / HERTZ;
   const long uptime =  UpTime();
   return (jiffies * 1.0) / uptime;
 }
