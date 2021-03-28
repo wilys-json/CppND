@@ -24,7 +24,7 @@ string LinuxParser::OperatingSystem() {
 }
 
 string LinuxParser::Kernel() {
-  return kernel = GenericParser<string>::getValue(kProcDirectory + kVersionFilename,
+  return GenericParser<string>::getValue(kProcDirectory + kVersionFilename,
                                          kKernalItemNumber);
 }
 
