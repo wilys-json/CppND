@@ -19,15 +19,13 @@ string LinuxParser::OperatingSystem() {
   vector<Replace> inlineReplace{Replace(' ', '_'), Replace('=', ' '),
                                 Replace('"', ' ')};
   vector<Replace> valueReplace{Replace('_', ' ')};
-  string os = GenericParser<string>::getValue(kOSPath, kOSName, inlineReplace,
+  return GenericParser<string>::getValue(kOSPath, kOSName, inlineReplace,
                                          valueReplace);
-  return os;
 }
 
 string LinuxParser::Kernel() {
-  string kernel = GenericParser<string>::getValue(kProcDirectory + kVersionFilename,
+  return kernel = GenericParser<string>::getValue(kProcDirectory + kVersionFilename,
                                          kKernalItemNumber);
-  return kernel;
 }
 
 // BONUS: Update this to use std::filesystem
@@ -59,16 +57,14 @@ float LinuxParser::calculateMemoryUtilization(const vector<float>& meminfo) {
 
 // Read and return the system memory utilization
 float LinuxParser::MemoryUtilization() {
-  vector<float> meminfo = GenericParser<float>::getValues(
-      kProcDirectory + kMeminfoFilename, kMemInfoRangeToRead);
-  return calculateMemoryUtilization(meminfo);
+  return calculateMemoryUtilization(GenericParser<float>::getValues(
+      kProcDirectory + kMeminfoFilename, kMemInfoRangeToRead));
 }
 
 // Read and return the system Uptime
 long LinuxParser::UpTime() {
-  long uptime = GenericParser<long>::getValue(kProcDirectory + kUptimeFilename,
+  return GenericParser<long>::getValue(kProcDirectory + kUptimeFilename,
                                        kUptimeItemNumber);
-  return uptime;
 }
 
 // Read and return the number of jiffies for the system
@@ -91,37 +87,31 @@ long LinuxParser::ActiveJiffies(int pid) {
 // Read and return the number of active jiffies for the system
 long LinuxParser::ActiveJiffies() {
   vector<long> utilization = CpuUtilization();
-  long jiffies = accumulate(utilization.begin(), utilization.end(), 0) -
+  return accumulate(utilization.begin(), utilization.end(), 0) -
          (utilization[CPUStates::kIdle_] + utilization[CPUStates::kIOwait_]);
-  return jiffies;
 }
 
 // Read and return the number of idle jiffies for the system
 long LinuxParser::IdleJiffies() {
   vector<long> utilization = CpuUtilization();
-  long jiffies = utilization[CPUStates::kIdle_] + utilization[CPUStates::kIOwait_];
-  return jiffies;
+  return utilization[CPUStates::kIdle_] + utilization[CPUStates::kIOwait_];
 }
 
 // Read and return CPU utilization
 vector<long> LinuxParser::CpuUtilization() {
-  vector<long> utilizations = GenericParser<long>::getValues(kProcDirectory
-    + kStatFilename, kCPUKey);
-  return utilizations;
+  return GenericParser<long>::getValues(kProcDirectory + kStatFilename, kCPUKey);
 }
 
 // Read and return the total number of processes
 int LinuxParser::TotalProcesses() {
-  int totalproc = GenericParser<int>::getValue(kProcDirectory + kStatFilename,
+  return GenericParser<int>::getValue(kProcDirectory + kStatFilename,
     kTotalProcess);
-  return totalproc;
 }
 
 // Read and return the number of running processes
 int LinuxParser::RunningProcesses() {
-  int runningproc = GenericParser<int>::getValue(kProcDirectory + kStatFilename,
+  return GenericParser<int>::getValue(kProcDirectory + kStatFilename,
                                       kRunningProcess);
-  return runningproc;
 }
 
 // Read and return the command associated with a process
@@ -137,34 +127,27 @@ string LinuxParser::Command(int pid) {
 
 // Read and return the memory used by a process
 string LinuxParser::Ram(int pid) {
-  string ram = to_string(
-      GenericParser<long>::getValue(
-          kProcDirectory + to_string(pid) + kStatusFilename, kProcessRAM) /
-      1024);
-  return ram;
+  return to_string(GenericParser<long>::getValue(kProcDirectory + to_string(pid) + kStatusFilename, kProcessRAM) / 1000);
 }
 
 // Read and return the user ID associated with a process
 string LinuxParser::Uid(int pid) {
-  string uid = GenericParser<string>::getValue(
+  return GenericParser<string>::getValue(
       kProcDirectory + to_string(pid) + kStatusFilename, kUID);
-  return uid;
 }
 
 // Read and return the user associated with a process
 string LinuxParser::User(int pid) {
   vector<Replace> replace{Replace('x', ' '), Replace(':', ' ')};
-  string user = GenericParser<string>::getValue(kPasswordPath, Uid(pid), replace, {});
-  return user;
+  return GenericParser<string>::getValue(kPasswordPath, Uid(pid), replace, {});
 }
 
 // Read and return the uptime of a process
 long LinuxParser::UpTime(int pid) {
-  long uptime = UpTime() - stol(GenericParser<string>::getValue(
+  return UpTime() - stol(GenericParser<string>::getValue(
              kProcDirectory + to_string(pid) + kStatFilename,
              kStartTimePosition)) /
          HERTZ;
-  return uptime;
 }
 
 // Function templates
