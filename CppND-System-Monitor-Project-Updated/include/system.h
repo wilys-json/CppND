@@ -5,24 +5,18 @@
 #include <vector>
 #include <set>
 
+#include "detect_os.h"
 #include "process.h"
 #include "processor.h"
 
-class System {
+class System : public SystemParser {
  public:
   Processor& Cpu();
   std::vector<Process>& Processes();
-  float MemoryUtilization();
-  long UpTime();
-  int TotalProcesses();
-  int RunningProcesses();
-  std::string Kernel();
-  std::string OperatingSystem();
 
  private:
   Processor cpu_;
   std::vector<Process> processes_{};
-  std::set<int> pids_{};
 };
 
 #endif

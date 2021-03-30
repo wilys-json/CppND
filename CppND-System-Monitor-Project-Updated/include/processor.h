@@ -1,7 +1,9 @@
 #ifndef PROCESSOR_H
 #define PROCESSOR_H
 
-class Processor {
+#include "detect_os.h"
+
+class Processor : public ProcessorParser {
  public:
   float Utilization();
 

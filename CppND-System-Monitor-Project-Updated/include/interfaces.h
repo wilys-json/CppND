@@ -11,10 +11,8 @@ class ProcessInterface {
     virtual int Pid() const;
     virtual string User() const;
     virtual string Command() const;
-    virtual float CpuUtilization() const;
     virtual string Ram();
     virtual long int UpTime() const;
-    virtual bool operator<(Process const& other) const;
 };
 
 class ProcessorInterface {
