@@ -124,35 +124,35 @@ string LinuxParser::ProcessParser::Command() override {
 }
 
 // Read and return the number of active jiffies for a PID
-long LinuxParser::ProcessParser::ActiveJiffies(int pid) {
+long LinuxParser::ProcessParser::ActiveJiffies() override {
   long utilization{0};
   vector<string> stats = GenericParser<string>::getValues(
-      kProcDirectory + to_string(pid) + kStatFilename);
+      kProcDirectory + to_string(pid_) + kStatFilename);
   for (auto& info : kCpuUtilInfo) utilization += stol(stats[info]);
   return utilization;
 }
 
 // Read and return the memory used by a process
-string LinuxParser::ProcessParser::Ram(int pid) {
-  return to_string(GenericParser<long>::getValue(kProcDirectory + to_string(pid) + kStatusFilename, kProcessRAM) / 1000);
+string LinuxParser::ProcessParser::Ram() override {
+  return to_string(GenericParser<long>::getValue(kProcDirectory + to_string(pid_) + kStatusFilename, kProcessRAM) / 1000);
 }
 
 // Read and return the user ID associated with a process
-string LinuxParser::ProcessParser::Uid(int pid) {
+string LinuxParser::ProcessParser::Uid() override {
   return GenericParser<string>::getValue(
-      kProcDirectory + to_string(pid) + kStatusFilename, kUID);
+      kProcDirectory + to_string(pid_) + kStatusFilename, kUID);
 }
 
 // Read and return the user associated with a process
-string LinuxParser::ProcessParser::User(int pid) {
+string LinuxParser::ProcessParser::User() override {
   vector<Replace> replace{Replace('x', ' '), Replace(':', ' ')};
-  return GenericParser<string>::getValue(kPasswordPath, Uid(pid), replace, {});
+  return GenericParser<string>::getValue(kPasswordPath, Uid(pid_), replace, {});
 }
 
 // Read and return the uptime of a process
-long LinuxParser::ProcessParser::UpTime(int pid) {
+long LinuxParser::ProcessParser::UpTime() override {
   return UpTime() - stol(GenericParser<string>::getValue(
-             kProcDirectory + to_string(pid) + kStatFilename,
+             kProcDirectory + to_string(pid_) + kStatFilename,
              kStartTimePosition)) /
          HERTZ;
 }

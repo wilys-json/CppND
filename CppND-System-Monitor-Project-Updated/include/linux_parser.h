@@ -78,6 +78,9 @@ class ProcessorParser : public ProcessorInterface {
     long Jiffies();
     long ActiveJiffies();
     long IdleJiffies();
+  private:
+    long prev_active_jiffies_{0};
+    long prev_idle_jiffies_{0};
 };
 
 class ProcessParser : public ProcessInterface {
