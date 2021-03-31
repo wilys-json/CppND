@@ -38,10 +38,9 @@ struct GenericParser {
     @param valueReplace : char(s) to be replaced in return value
     @return : the value of the target key
   */
-  static T getValue(const std::string& filename,
-                          const std::string& targetKey,
-                          const std::vector<Replace>& inlineReplace,
-                          const std::vector<Replace>& valueReplace);
+  static T getValue(const std::string& filename, const std::string& targetKey,
+                    const std::vector<Replace>& inlineReplace,
+                    const std::vector<Replace>& valueReplace);
 
   /**
     Function template to collect all values from a file into a vector.
@@ -57,7 +56,7 @@ struct GenericParser {
     @return : the vecotr of values of the target key
   */
   static std::vector<T> getValues(const std::string& filename,
-                                        const std::string& targetKey);
+                                  const std::string& targetKey);
 
   /**
     Function template to collect values of keys in a defined range.
@@ -66,7 +65,7 @@ struct GenericParser {
     @return : the vector of values in the defined range
   */
   static std::vector<T> getValues(const std::string& filename,
-                                        const int& range);
+                                  const int& range);
 };
 
 #endif

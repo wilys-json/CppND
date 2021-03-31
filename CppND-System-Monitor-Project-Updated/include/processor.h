@@ -3,6 +3,7 @@
 
 #include "detect_os.h"
 
+// Processor representation
 class Processor : public ProcessorParser {};
 
 #endif

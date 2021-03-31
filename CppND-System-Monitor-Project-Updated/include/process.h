@@ -1,13 +1,11 @@
 #ifndef PROCESS_H
 #define PROCESS_H
 
-#include "detect_os.h"
 #include <algorithm>
 
-/*
-Basic class for Process representation
-It contains relevant attributes as shown below
-*/
+#include "detect_os.h"
+
+// Process representation
 class Process : public ProcessParser {
  public:
   Process(const int& pid);

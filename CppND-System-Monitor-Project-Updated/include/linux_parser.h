@@ -1,17 +1,15 @@
 #ifndef SYSTEM_PARSER_H
 #define SYSTEM_PARSER_H
 
+#include <unistd.h>
 
-#include "system_interface.h"
 #include "process_interface.h"
 #include "processor_interface.h"
-
-#include <unistd.h>
+#include "system_interface.h"
 #define HERTZ sysconf(_SC_CLK_TCK)
 
 #include <fstream>
 #include <regex>
-#include <stdexcept>
 #include <string>
 #include <vector>
 
@@ -42,6 +40,8 @@ const int kKernalItemNumber{3};
 const int kUptimeItemNumber{1};
 const int kMemInfoRangeToRead{5};
 enum MemInfo { kMemTotal_ = 0, kMemFree_, kMemAvailable_, kBuffers_, kCached_ };
+std::vector<int> Pids();
+long SystemUpTime();
 
 // CPU
 enum CPUStates {
@@ -61,49 +61,50 @@ enum CPUStates {
 const int kStartTimePosition{22};
 const std::vector<int> kCpuUtilInfo{13, 14, 15, 16};
 
-std::vector<int> Pids();
-long SystemUpTime();
-
+// Base Class to implement System Interface
 class SystemParser : public SystemInterface {
-  public:
-    float calculateMemoryUtilization(const std::vector<float>& meminfo);
-    float MemoryUtilization() override;
-    long UpTime() override;
-    int TotalProcesses() override;
-    int RunningProcesses() override;
-    std::string OperatingSystem() override;
-    std::string Kernel() override;
-
+ public:
+  float calculateMemoryUtilization(const std::vector<float>& meminfo);
+  float MemoryUtilization() override;
+  long UpTime() override;
+  int TotalProcesses() override;
+  int RunningProcesses() override;
+  std::string OperatingSystem() override;
+  std::string Kernel() override;
 };
 
+// Base Class to implement Processor Interface
 class ProcessorParser : public ProcessorInterface {
-  public:
-    std::vector<long> Utilizations();
-    long Jiffies();
-    long ActiveJiffies();
-    long IdleJiffies();
-    float Utilization() override;
-  private:
-    long prev_active_jiffies_{0};
-    long prev_idle_jiffies_{0};
+ public:
+  std::vector<long> Utilizations();
+  long Jiffies();
+  long ActiveJiffies();
+  long IdleJiffies();
+  float Utilization() override;
+
+ private:
+  long prev_active_jiffies_{0};
+  long prev_idle_jiffies_{0};
 };
 
+// Base Class to implement Process Interface
 class ProcessParser : public ProcessInterface {
-  public:
-    ProcessParser(const int& pid);
-    int Pid() const override;
-    std::string Command() const override;
-    std::string Ram() override;
-    std::string Uid() const;
-    std::string User() const override;
-    long ActiveJiffies() const;
-    long int UpTime() const override;
-    float CpuUtilization() const override;
-  private:
-    int pid_;
-    std::string command_;
-    std::string user_;
-    float cpu_{0};
+ public:
+  ProcessParser(const int& pid);
+  int Pid() const override;
+  std::string Command() const override;
+  std::string Ram() override;
+  std::string Uid() const;
+  std::string User() const override;
+  long ActiveJiffies() const;
+  long int UpTime() const override;
+  float CpuUtilization() const override;
+
+ private:
+  int pid_;
+  std::string command_;
+  std::string user_;
+  float cpu_{0};
 };
 
 };  // namespace LinuxParser

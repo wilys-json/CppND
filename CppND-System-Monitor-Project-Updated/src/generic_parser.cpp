@@ -1,18 +1,18 @@
+#include "generic_parser.h"
+
 #include <fstream>
-#include <regex>
 #include <iostream>
+#include <regex>
 #include <string>
 #include <vector>
-
-#include "generic_parser.h"
 
 using std::string;
 using std::vector;
 
 // Function templates
+
 template <typename T>
-T GenericParser<T>::getValue(const string& filename,
-                                                const int& position) {
+T GenericParser<T>::getValue(const string& filename, const int& position) {
   string line;
   std::ifstream filestream(filename);
   T value = T();
@@ -26,8 +26,7 @@ T GenericParser<T>::getValue(const string& filename,
 }
 
 template <typename T>
-T GenericParser<T>::getValue(const string& filename,
-                                                const string& targetKey) {
+T GenericParser<T>::getValue(const string& filename, const string& targetKey) {
   string line, key;
   std::ifstream filestream(filename);
   T value = T();
@@ -43,10 +42,10 @@ T GenericParser<T>::getValue(const string& filename,
 }
 
 template <typename T>
-T GenericParser<T>::getValue(
-    const std::string& filename, const std::string& targetKey,
-    const std::vector<Replace>& inlineReplace,
-    const std::vector<Replace>& valueReplace) {
+T GenericParser<T>::getValue(const std::string& filename,
+                             const std::string& targetKey,
+                             const std::vector<Replace>& inlineReplace,
+                             const std::vector<Replace>& valueReplace) {
   string line, key;
   std::ifstream filestream(filename);
   T value = T();
@@ -75,8 +74,8 @@ T GenericParser<T>::getValue(
 }
 
 template <typename T>
-vector<T> GenericParser<T>::getValues(
-    const string& filename, const string& targetKey) {
+vector<T> GenericParser<T>::getValues(const string& filename,
+                                      const string& targetKey) {
   string line, key;
   std::ifstream filestream(filename);
   T value;
@@ -97,7 +96,7 @@ vector<T> GenericParser<T>::getValues(
 
 template <typename T>
 vector<T> GenericParser<T>::getValues(const string& filename,
-                                                         const int& range) {
+                                      const int& range) {
   string line, key;
   std::ifstream filestream(filename);
   T value;
@@ -115,8 +114,7 @@ vector<T> GenericParser<T>::getValues(const string& filename,
 }
 
 template <typename T>
-vector<T> GenericParser<T>::getValues(
-    const string& filename) {
+vector<T> GenericParser<T>::getValues(const string& filename) {
   string line;
   std::ifstream filestream(filename);
   T value;

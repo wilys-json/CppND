@@ -1,8 +1,10 @@
-#include "detect_os.h"
 #include "system.h"
+
+#include <algorithm>
+
+#include "detect_os.h"
 #include "process.h"
 #include "processor.h"
-#include <algorithm>
 
 using std::vector;
 
