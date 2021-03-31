@@ -1,8 +1,10 @@
 #ifndef SYSTEM_PARSER_H
 #define SYSTEM_PARSER_H
 
-#include "generic_parser.h"
-#include "interfaces.h"
+
+#include "system_interface.h"
+#include "process_interface.h"
+#include "processor_interface.h"
 
 #include <unistd.h>
 #define HERTZ sysconf(_SC_CLK_TCK)
@@ -60,6 +62,7 @@ const int kStartTimePosition{22};
 const std::vector<int> kCpuUtilInfo{13, 14, 15, 16};
 
 std::vector<int> Pids();
+long SystemUpTime();
 
 class SystemParser : public SystemInterface {
   public:
@@ -70,6 +73,7 @@ class SystemParser : public SystemInterface {
     int RunningProcesses() override;
     std::string OperatingSystem() override;
     std::string Kernel() override;
+
 };
 
 class ProcessorParser : public ProcessorInterface {
@@ -78,6 +82,7 @@ class ProcessorParser : public ProcessorInterface {
     long Jiffies();
     long ActiveJiffies();
     long IdleJiffies();
+    float Utilization() override;
   private:
     long prev_active_jiffies_{0};
     long prev_idle_jiffies_{0};
@@ -86,14 +91,19 @@ class ProcessorParser : public ProcessorInterface {
 class ProcessParser : public ProcessInterface {
   public:
     ProcessParser(const int& pid);
-    std::string Command() override;
+    int Pid() const override;
+    std::string Command() const override;
     std::string Ram() override;
-    std::string Uid() override;
-    std::string User() override;
-    long ActiveJiffies();
-    long int UpTime() override;
+    std::string Uid() const;
+    std::string User() const override;
+    long ActiveJiffies() const;
+    long int UpTime() const override;
+    float CpuUtilization() const override;
   private:
     int pid_;
+    std::string command_;
+    std::string user_;
+    float cpu_{0};
 };
 
 };  // namespace LinuxParser

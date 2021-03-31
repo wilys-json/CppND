@@ -1,6 +1,8 @@
 #ifndef GENERIC_PARSER_H
 #define GENERIC_PARSER_H
 
+#include <string>
+#include <vector>
 
 // Helper structure for string replacements
 struct Replace {

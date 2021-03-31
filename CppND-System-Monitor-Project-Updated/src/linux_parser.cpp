@@ -1,12 +1,13 @@
 #include "linux_parser.h"
 #include "generic_parser.h"
-
+#include "generic_parser.cpp"
 #include <dirent.h>
 
 #include <iostream>
 #include <numeric>
 #include <string>
 #include <vector>
+#include <algorithm>
 
 using std::accumulate;
 using std::stof;
@@ -37,7 +38,12 @@ vector<int> LinuxParser::Pids() {
   return pids;
 }
 
-string LinuxParser::SystemParser::OperatingSystem() override {
+long LinuxParser::SystemUpTime() {
+  return GenericParser<long>::getValue(kProcDirectory + kUptimeFilename,
+                                       kUptimeItemNumber);
+}
+
+string LinuxParser::SystemParser::OperatingSystem() {
   vector<Replace> inlineReplace{Replace(' ', '_'), Replace('=', ' '),
                                 Replace('"', ' ')};
   vector<Replace> valueReplace{Replace('_', ' ')};
@@ -45,7 +51,7 @@ string LinuxParser::SystemParser::OperatingSystem() override {
                                          valueReplace);
 }
 
-string LinuxParser::SystemParser::Kernel() override {
+string LinuxParser::SystemParser::Kernel() {
   return GenericParser<string>::getValue(kProcDirectory + kVersionFilename,
                                          kKernalItemNumber);
 }
@@ -59,29 +65,30 @@ float LinuxParser::SystemParser::calculateMemoryUtilization(const vector<float>&
 }
 
 // Read and return the system memory utilization
-float LinuxParser::SystemParser::MemoryUtilization() override {
+float LinuxParser::SystemParser::MemoryUtilization() {
   return calculateMemoryUtilization(GenericParser<float>::getValues(
       kProcDirectory + kMeminfoFilename, kMemInfoRangeToRead));
 }
 
 // Read and return the system Uptime
-long LinuxParser::SystemParser::UpTime() override {
-  return GenericParser<long>::getValue(kProcDirectory + kUptimeFilename,
-                                       kUptimeItemNumber);
+long LinuxParser::SystemParser::UpTime() {
+  return LinuxParser::SystemUpTime();
 }
 
 
 // Read and return the total number of processes
-int LinuxParser::SystemParser::TotalProcesses() override {
+int LinuxParser::SystemParser::TotalProcesses() {
   return GenericParser<int>::getValue(kProcDirectory + kStatFilename,
     kTotalProcess);
 }
 
 // Read and return the number of running processes
-int LinuxParser::SystemParser::RunningProcesses() override {
+int LinuxParser::SystemParser::RunningProcesses() {
   return GenericParser<int>::getValue(kProcDirectory + kStatFilename,
                                       kRunningProcess);
 }
+
+
 
 // Read and return CPU utilization
 vector<long> LinuxParser::ProcessorParser::Utilizations() {
@@ -112,8 +119,28 @@ long LinuxParser::ProcessorParser::IdleJiffies() {
 }
 
 
+float LinuxParser::ProcessorParser::Utilization() {
+  float utilization;
+  long activeJiffies = ActiveJiffies();
+  long idleJiffies = IdleJiffies();
+
+  utilization = (activeJiffies - prev_active_jiffies_) /
+                (((activeJiffies - prev_active_jiffies_) +
+                  (idleJiffies - prev_idle_jiffies_)) *
+                 1.0);
+
+  prev_active_jiffies_ = activeJiffies;
+  prev_idle_jiffies_ = idleJiffies;
+
+  return utilization;
+}
+
+LinuxParser::ProcessParser::ProcessParser(const int& pid) : pid_(pid) {}
+
+int LinuxParser::ProcessParser::Pid() const { return pid_; }
+
 // Read and return the command associated with a process
-string LinuxParser::ProcessParser::Command() override {
+string LinuxParser::ProcessParser::Command() const{
   string value;
   std::ifstream filestream(kProcDirectory + to_string(pid_) + kCmdlineFilename);
   if (filestream.is_open()) {
@@ -124,7 +151,7 @@ string LinuxParser::ProcessParser::Command() override {
 }
 
 // Read and return the number of active jiffies for a PID
-long LinuxParser::ProcessParser::ActiveJiffies() override {
+long LinuxParser::ProcessParser::ActiveJiffies() const {
   long utilization{0};
   vector<string> stats = GenericParser<string>::getValues(
       kProcDirectory + to_string(pid_) + kStatFilename);
@@ -133,26 +160,32 @@ long LinuxParser::ProcessParser::ActiveJiffies() override {
 }
 
 // Read and return the memory used by a process
-string LinuxParser::ProcessParser::Ram() override {
+string LinuxParser::ProcessParser::Ram() {
   return to_string(GenericParser<long>::getValue(kProcDirectory + to_string(pid_) + kStatusFilename, kProcessRAM) / 1000);
 }
 
 // Read and return the user ID associated with a process
-string LinuxParser::ProcessParser::Uid() override {
+string LinuxParser::ProcessParser::Uid() const {
   return GenericParser<string>::getValue(
       kProcDirectory + to_string(pid_) + kStatusFilename, kUID);
 }
 
 // Read and return the user associated with a process
-string LinuxParser::ProcessParser::User() override {
+string LinuxParser::ProcessParser::User() const {
   vector<Replace> replace{Replace('x', ' '), Replace(':', ' ')};
-  return GenericParser<string>::getValue(kPasswordPath, Uid(pid_), replace, {});
+  return GenericParser<string>::getValue(kPasswordPath, Uid(), replace, {});
 }
 
 // Read and return the uptime of a process
-long LinuxParser::ProcessParser::UpTime() override {
-  return UpTime() - stol(GenericParser<string>::getValue(
+long LinuxParser::ProcessParser::UpTime() const {
+  return LinuxParser::SystemUpTime() - stol(GenericParser<string>::getValue(
              kProcDirectory + to_string(pid_) + kStatFilename,
              kStartTimePosition)) /
          HERTZ;
+}
+
+float LinuxParser::ProcessParser::CpuUtilization() const {
+  const long jiffies = ActiveJiffies() / HERTZ;
+  const long uptime =  UpTime();
+  return (jiffies * 1.0) / uptime;
 }
