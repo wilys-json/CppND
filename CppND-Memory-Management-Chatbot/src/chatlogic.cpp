@@ -173,7 +173,7 @@ void ChatLogic::LoadAnswerGraphFromFile(std::string filename)
         }
     }
     ChatBot chatbot(ChatBotImage);
-    // _chatBot = &chatbot;
+    _chatBot = &chatbot;
     chatbot.SetChatLogicHandle(this);
     chatbot.SetRootNode(rootNode);
     rootNode->MoveChatbotHere(std::move(chatbot));
