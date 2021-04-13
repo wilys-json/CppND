@@ -172,7 +172,6 @@ void ChatLogic::LoadAnswerGraphFromFile(std::string filename)
             }
         }
     }
-    std::cout << "CREATING NEW CHATBOT" << std::endl;
     ChatBot chatbot(ChatBotImage);
     // _chatBot = &chatbot;
     chatbot.SetChatLogicHandle(this);
