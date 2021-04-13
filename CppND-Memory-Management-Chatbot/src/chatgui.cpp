@@ -2,6 +2,8 @@
 #include <wx/colour.h>
 #include <wx/image.h>
 #include <string>
+#include <memory>
+#include <iostream>
 #include "chatbot.h"
 #include "chatlogic.h"
 #include "chatgui.h"
@@ -61,7 +63,7 @@ void ChatBotFrame::OnEnter(wxCommandEvent &WXUNUSED(event))
     // delete text in text control
     _userTextCtrl->Clear();
 
-    // send user text to chatbot 
+    // send user text to chatbot
      _panelDialog->GetChatLogicHandle()->SendMessageToChatbot(std::string(userText.mb_str()));
 }
 
@@ -96,7 +98,7 @@ void ChatBotFrameImagePanel::render(wxDC &dc)
     wxSize sz = this->GetSize();
     wxImage imgSmall = image.Rescale(sz.GetWidth(), sz.GetHeight(), wxIMAGE_QUALITY_HIGH);
     _image = wxBitmap(imgSmall);
-    
+
     dc.DrawBitmap(_image, 0, 0, false);
 }
 
@@ -114,36 +116,23 @@ ChatBotPanelDialog::ChatBotPanelDialog(wxWindow *parent, wxWindowID id)
     // allow for PNG images to be handled
     wxInitAllImageHandlers();
 
-    //// STUDENT CODE
-    ////
-
-    // create chat logic instance
-    _chatLogic = new ChatLogic(); 
+    // create chat logic instance using unique smart pointer
+    _chatLogic = std::make_unique<ChatLogic>();
 
     // pass pointer to chatbot dialog so answers can be displayed in GUI
     _chatLogic->SetPanelDialogHandle(this);
 
+    std::cout << "LOAD ANSWER FROM FILE.." << std::endl;
     // load answer graph from file
     _chatLogic->LoadAnswerGraphFromFile(dataPath + "src/answergraph.txt");
 
-    ////
-    //// EOF STUDENT CODE
 }
 
-ChatBotPanelDialog::~ChatBotPanelDialog()
-{
-    //// STUDENT CODE
-    ////
-
-    delete _chatLogic;
-
-    ////
-    //// EOF STUDENT CODE
-}
 
 void ChatBotPanelDialog::AddDialogItem(wxString text, bool isFromUser)
 {
     // add a single dialog element to the sizer
+    std::cout << "NEW DIALOG" << std::endl;
     ChatBotPanelDialogItem *item = new ChatBotPanelDialogItem(this, text, isFromUser);
     _dialogSizer->Add(item, 0, wxALL | (isFromUser == true ? wxALIGN_LEFT : wxALIGN_RIGHT), 8);
     _dialogSizer->Layout();
@@ -195,7 +184,7 @@ ChatBotPanelDialogItem::ChatBotPanelDialogItem(wxPanel *parent, wxString text, b
     : wxPanel(parent, -1, wxPoint(-1, -1), wxSize(-1, -1), wxBORDER_NONE)
 {
     // retrieve image from chatbot
-    wxBitmap *bitmap = isFromUser == true ? nullptr : ((ChatBotPanelDialog*)parent)->GetChatLogicHandle()->GetImageFromChatbot(); 
+    wxBitmap *bitmap = isFromUser == true ? nullptr : ((ChatBotPanelDialog*)parent)->GetChatLogicHandle()->GetImageFromChatbot();
 
     // create image and text
     _chatBotImg = new wxStaticBitmap(this, wxID_ANY, (isFromUser ? wxBitmap(imgBasePath + "user.png", wxBITMAP_TYPE_PNG) : *bitmap), wxPoint(-1, -1), wxSize(-1, -1));

@@ -21,7 +21,7 @@ ChatBot::ChatBot()
 ChatBot::ChatBot(std::string filename)
 {
     std::cout << "ChatBot Constructor" << std::endl;
-    
+
     // invalidate data handles
     _chatLogic = nullptr;
     _rootNode = nullptr;
@@ -42,11 +42,59 @@ ChatBot::~ChatBot()
     }
 }
 
-//// STUDENT CODE
-////
+ChatBot::ChatBot(const ChatBot& source) {
+  std::cout << "COPYING ChatBot instance from " << &source << " to " \
+  << this << std::endl;
+  _image = new wxBitmap(*source._image);
+  _chatLogic = source._chatLogic;
+  _rootNode = source._rootNode;
+  _currentNode = source._currentNode;
+  _chatLogic->SetChatbotHandle(this);
+}
 
-////
-//// EOF STUDENT CODE
+ChatBot& ChatBot::operator=(const ChatBot& source) {
+  std::cout << "ASSIGNING ChatBot instance from " << &source << " to " \
+  << this << " BY COPYING" << std::endl;
+  if (this == &source) return *this;
+  delete _image;
+  _image = new wxBitmap(*source._image);
+  _chatLogic = source._chatLogic;
+  _rootNode = source._rootNode;
+  _currentNode = source._currentNode;
+  _chatLogic->SetChatbotHandle(this);
+  return *this;
+}
+
+ChatBot::ChatBot(ChatBot&& source) {
+  std::cout << "MOVING ChatBot instance from " << &source << " to " \
+  << this << std::endl;
+  _image = source._image;
+  _chatLogic = source._chatLogic;
+  _rootNode = source._rootNode;
+  _currentNode = source._currentNode;
+  _chatLogic->SetChatbotHandle(this);
+  source._image = NULL;
+  source._chatLogic = nullptr;
+  source._rootNode = nullptr;
+  source._currentNode = nullptr;
+}
+
+ChatBot& ChatBot::operator=(ChatBot&& source) {
+  std::cout << "ASSIGNING ChatBot instance from " << &source << " to " \
+  << this << " BY MOVING" << std::endl;
+  if (this == &source) return *this;
+  delete _image;
+  _image = source._image;
+  _chatLogic = source._chatLogic;
+  _rootNode = source._rootNode;
+  _currentNode = source._currentNode;
+  _chatLogic->SetChatbotHandle(this);
+  source._image = NULL;
+  source._chatLogic = nullptr;
+  source._rootNode = nullptr;
+  source._currentNode = nullptr;
+  return *this;
+}
 
 void ChatBot::ReceiveMessageFromUser(std::string message)
 {
