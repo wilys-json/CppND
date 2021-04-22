@@ -75,9 +75,9 @@ int main()
     std::vector<std::shared_ptr<Intersection>> intersections;
     std::vector<std::shared_ptr<Vehicle>> vehicles;
     std::string backgroundImg;
-  
-    // Task L1.3 : Vary the number of simulated vehicles and use the top function on the terminal or 
-    // the task manager of your system to observe the number of threads used by the simulation.   
+
+    // Task L1.3 : Vary the number of simulated vehicles and use the top function on the terminal or
+    // the task manager of your system to observe the number of threads used by the simulation.
     int nVehicles = 4;
     createTrafficObjects(streets, intersections, vehicles, backgroundImg, nVehicles);
 
@@ -89,7 +89,7 @@ int main()
     });
 
     /* PART 3 : Launch visualization */
-    
+
     // add all objects into common vector
     std::vector<std::shared_ptr<TrafficObject>> trafficObjects;
     std::for_each(intersections.begin(), intersections.end(), [&trafficObjects](std::shared_ptr<Intersection> &intersection) {
