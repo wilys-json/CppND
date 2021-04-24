@@ -20,4 +20,4 @@ RUN	wget -O opencv.zip https://github.com/opencv/opencv/archive/master.zip && \
 	cmake --build .
 
 # Set OpenCV Path
-RUN export OpenCV_DIR=~/project/build
+RUN export OpenCV_DIR=/root/project/build
