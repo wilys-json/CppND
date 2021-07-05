@@ -23,19 +23,19 @@ void Snake::UpdateHead() {
 
   switch (direction) {
     case Direction::kUp:
-      head_y = (head_y == 0) ? 0 : head_y - speed;
+      head_y = (head_y <= 0) ? 0 : head_y - speed;
       break;
 
     case Direction::kDown:
-      head_y = (head_y == grid_height) ? grid_height : head_y + speed;
+      head_y = (head_y >= grid_height - speed) ? grid_height - speed : head_y + speed;
       break;
 
     case Direction::kLeft:
-      head_x = (head_x == 0) ? 0 : head_x - speed;
+      head_x = (head_x <= 0) ? 0 : head_x - speed;
       break;
 
     case Direction::kRight:
-      head_x = (head_x == grid_width) ? grid_width : head_x + speed;
+      head_x = (head_x >= grid_width - speed) ? grid_width - speed: head_x + speed;
       break;
   }
 
