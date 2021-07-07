@@ -1,6 +1,8 @@
 #include "game.h"
+#include "snake.h"
 #include <iostream>
 #include "SDL.h"
+#include <cmath>
 
 Game::Game(std::size_t grid_width, std::size_t grid_height)
     : snake(grid_width, grid_height),
@@ -74,13 +76,34 @@ void Game::Update() {
   int new_y = static_cast<int>(snake.head_y);
 
   // Check if there's food over here
-  if (food.x == new_x && food.y == new_y) {
-    score++;
-    PlaceFood();
-    // Grow snake and increase speed.
-    snake.GrowBody();
-    snake.speed += 0.02;
+  switch(snake.direction) {
+    case Snake::Direction::kUp:
+      if (food.y + 1 == new_y && food.x == new_x) {
+        Score();
+        break;
+      }
+    case Snake::Direction::kDown:
+      if (food.y - 1 == new_y && food.x == new_x) {
+        Score();
+        break;
+      }
+    case Snake::Direction::kLeft:
+      if (food.x + 1 == new_x && food.y == new_y) {
+        Score();
+        break;
+      }
+    case Snake::Direction::kRight:
+      if (food.x - 1 == new_x && food.y == new_y) {
+        Score();
+        break;
+      }
   }
+
+}
+
+void Game::Score() {
+  score++;
+  PlaceFood();
 }
 
 int Game::GetScore() const { return score; }

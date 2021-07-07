@@ -27,7 +27,7 @@ void Snake::UpdateHead() {
       break;
 
     case Direction::kDown:
-      head_y = (head_y >= grid_height - speed) ? grid_height - speed : head_y + speed;
+      head_y = (head_y >= grid_height * 3) ? grid_height * 3: head_y + speed;
       break;
 
     case Direction::kLeft:
@@ -35,7 +35,7 @@ void Snake::UpdateHead() {
       break;
 
     case Direction::kRight:
-      head_x = (head_x >= grid_width - speed) ? grid_width - speed: head_x + speed;
+      head_x = (head_x >= grid_width * 3) ? grid_width * 3: head_x + speed;
       break;
   }
 
