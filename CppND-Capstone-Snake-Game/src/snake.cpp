@@ -4,13 +4,14 @@
 
 void Snake::Update() {
   SDL_Point prev_cell{
-      static_cast<int>(head_x),
+      static_cast<int>(origin_x),
       static_cast<int>(
-          head_y)};  // We first capture the head's cell before updating.
+          origin_y)};  // We first capture the head's cell before updating.
   UpdateHead();
+  UpdateBullets();
   SDL_Point current_cell{
-      static_cast<int>(head_x),
-      static_cast<int>(head_y)};  // Capture the head's cell after updating.
+      static_cast<int>(origin_x),
+      static_cast<int>(origin_y)};  // Capture the head's cell after updating.
 
   // Update all of the body vector items if the snake head has moved to a new
   // cell.
@@ -19,28 +20,57 @@ void Snake::Update() {
   }
 }
 
+bool Snake::Collide(const GameObject &other) {
+
+  int this_x = static_cast<int>(origin_x);
+  int this_y = static_cast<int>(origin_y);
+
+  // Check if head touches head
+  if (static_cast<int>(other.origin_x) == this_x
+    && static_cast<int>(other.origin_y) == this_y)
+    return true;
+
+  // Check if snake's head hit other's body
+  for (const auto &other_part : other.body) {
+    if (other_part.x == this_x && other_part.y == this_y) return true;
+  }
+
+  // Check if snake's body is hit by other's head
+  for (const auto &this_part : body) {
+    if (this_part.x == static_cast<int>(other.origin_x)
+    && this_part.y == static_cast<int>(other.origin_y)) return true;
+  }
+
+  return false;
+
+}
+
 void Snake::UpdateHead() {
   switch (direction) {
     case Direction::kUp:
-      head_y -= speed;
+      origin_y -= speed;
       break;
 
     case Direction::kDown:
-      head_y += speed;
+      origin_y += speed;
       break;
 
     case Direction::kLeft:
-      head_x -= speed;
+      origin_x -= speed;
       break;
 
     case Direction::kRight:
-      head_x += speed;
+      origin_x += speed;
       break;
   }
 
   // Wrap the Snake around to the beginning if going off of the screen.
-  head_x = fmod(head_x + grid_width, grid_width);
-  head_y = fmod(head_y + grid_height, grid_height);
+  origin_x = fmod(origin_x + grid_width, grid_width);
+  origin_y = fmod(origin_y + grid_height, grid_height);
+}
+
+void Snake::UpdateBullets() {
+  for (auto &bullet : bullets) bullet.Update();
 }
 
 void Snake::UpdateBody(SDL_Point &current_head_cell, SDL_Point &prev_head_cell) {
@@ -67,7 +97,7 @@ void Snake::GrowBody() { growing = true; }
 
 // Inefficient method to check if cell is occupied by snake.
 bool Snake::SnakeCell(int x, int y) {
-  if (x == static_cast<int>(head_x) && y == static_cast<int>(head_y)) {
+  if (x == static_cast<int>(origin_x) && y == static_cast<int>(origin_y)) {
     return true;
   }
   for (auto const &item : body) {
