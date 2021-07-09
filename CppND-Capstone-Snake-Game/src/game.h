@@ -26,7 +26,6 @@ class Game {
 
   int score{0};
 
-  void Score();
   void PlaceFood();
   void Update();
 };
