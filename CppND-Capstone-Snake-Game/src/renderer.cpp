@@ -1,4 +1,5 @@
 #include "renderer.h"
+#include "SwitchableColor.h"
 #include <iostream>
 #include <string>
 
@@ -49,16 +50,16 @@ void Renderer::Render(Snake const snake, Food const &food) {
 
   // Render food
   switch(food.getColor()) {
-    case Food::Color::kYellow:
+    case SwitchableColor::Color::kYellow:
       SDL_SetRenderDrawColor(sdl_renderer, 0xFF, 0xCC, 0x00, 0xFF);
       break;
-    case Food::Color::kWhite:
+    case SwitchableColor::Color::kWhite:
       SDL_SetRenderDrawColor(sdl_renderer, 0xFF, 0xFF, 0xFF, 0xFF);
       break;
-    case Food::Color::kBlue:
+    case SwitchableColor::Color::kBlue:
       SDL_SetRenderDrawColor(sdl_renderer, 0x00, 0x7A, 0xCC, 0xFF);
       break;
-    case Food::Color::kRed:
+    case SwitchableColor::Color::kRed:
       SDL_SetRenderDrawColor(sdl_renderer, 0xFF, 0x00, 0x00, 0xFF);
       break;
   }
@@ -84,8 +85,26 @@ void Renderer::Render(Snake const snake, Food const &food) {
   }
   SDL_RenderFillRect(sdl_renderer, &block);
 
-  // Render bullet
-  
+  // Render bullet & bullet body
+
+  if (!snake.bullets.empty()) {
+    for (auto &bullet : snake.bullets) {
+      if (bullet.get()!=nullptr) {
+      block.x = static_cast<int>(bullet->origin_x) * block.w;
+      block.y = static_cast<int>(bullet->origin_y) * block.h;
+      switch(bullet->getColor()) {
+        case SwitchableColor::Color::kYellow:
+          SDL_SetRenderDrawColor(sdl_renderer, 0xFF, 0xCC, 0x00, 0xFF);
+          break;
+        case SwitchableColor::Color::kRed:
+          SDL_SetRenderDrawColor(sdl_renderer, 0xFF, 0x00, 0x00, 0xFF);
+          break;
+      }
+      SDL_RenderFillRect(sdl_renderer, &block);
+      }
+    }
+  }
+
 
   // Update Screen
   SDL_RenderPresent(sdl_renderer);

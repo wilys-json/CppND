@@ -9,6 +9,10 @@ class Movables
 {
  public:
    enum class Direction { kUp, kDown, kLeft, kRight };
+   Movables(Direction direction, float speed) :
+    direction(direction),
+    speed(speed) {};
+   Movables() {};
    virtual ~Movables() {};
    Direction direction;
    float speed;

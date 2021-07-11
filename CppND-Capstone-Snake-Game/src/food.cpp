@@ -19,8 +19,7 @@ void Food::Update() {
 }
 
 void Food::Blink() {
-  blinkstate = (blinkstate == BlinkState::kOff) ? BlinkState::kOn : BlinkState::kOff;
-  color = (blinkstate == BlinkState::kOff) ? Color::kWhite : Color::kYellow;
+  color = (color == Color::kYellow) ? Color::kWhite : Color::kYellow;
 }
 
 void Food::Poisoned() {
@@ -28,6 +27,5 @@ void Food::Poisoned() {
 }
 
 void Food::turnSpeedUp() {
-  blinkstate = (blinkstate == BlinkState::kOff) ? BlinkState::kOn : BlinkState::kOff;
-  color = (blinkstate == BlinkState::kOff) ? Color::kWhite : Color::kRed;
+  color = (color == Color::kRed) ? Color::kWhite : Color::kRed;
 }

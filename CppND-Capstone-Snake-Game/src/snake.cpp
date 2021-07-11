@@ -1,6 +1,18 @@
 #include "snake.h"
+#include "bullet.h"
 #include <cmath>
 #include <iostream>
+#include <thread>
+#include <chrono>
+#include <mutex>
+
+void Snake::enableShooterMode() {
+  // std::cout << "enable shooter mode." << std::endl;
+  shooterMode = true;
+  // std::this_thread::sleep_for(std::chrono::seconds(5));
+  // std::cout << "shooter mode ends." << std::endl;
+  // shooterMode = false;
+}
 
 void Snake::Update() {
   SDL_Point prev_cell{
@@ -70,7 +82,7 @@ void Snake::UpdateHead() {
 }
 
 void Snake::UpdateBullets() {
-  for (auto &bullet : bullets) bullet.Update();
+  for (auto &bullet : bullets) bullet->Update();
 }
 
 void Snake::UpdateBody(SDL_Point &current_head_cell, SDL_Point &prev_head_cell) {
@@ -94,6 +106,13 @@ void Snake::UpdateBody(SDL_Point &current_head_cell, SDL_Point &prev_head_cell) 
 }
 
 void Snake::GrowBody() { growing = true; }
+
+void Snake::Shoot() {
+  if(!alive || !shooterMode) return;
+  std::shared_ptr<Bullet> bullet = std::make_shared<Bullet>(grid_width, grid_height, this);
+  // Bullet* bullet = new Bullet(grid_width, grid_height, this);
+  bullets.push_back(std::move(bullet));
+}
 
 // Inefficient method to check if cell is occupied by snake.
 bool Snake::SnakeCell(int x, int y) {

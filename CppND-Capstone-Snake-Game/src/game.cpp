@@ -1,5 +1,8 @@
 #include "game.h"
+#include "food.h"
 #include <iostream>
+#include <memory>
+#include <vector>
 #include "SDL.h"
 
 Game::Game(std::size_t grid_width, std::size_t grid_height)
@@ -7,6 +10,9 @@ Game::Game(std::size_t grid_width, std::size_t grid_height)
       engine(dev()),
       random_w(0, static_cast<int>(grid_width - 1)),
       random_h(0, static_cast<int>(grid_height - 1)) {
+  empty_map = std::vector<std::vector<std::shared_ptr<GameObject>>>(grid_height, std::vector<std::shared_ptr<GameObject>>(grid_width, nullptr));
+  map = std::make_shared<std::vector<std::vector<std::shared_ptr<GameObject>>>>(grid_height, std::vector<std::shared_ptr<GameObject>>(grid_width, nullptr));
+  snake.setMap(map);
   PlaceFood();
 }
 
@@ -58,6 +64,7 @@ void Game::PlaceFood() {
     // Check that the location is not occupied by a snake item before placing
     // food.
     food = Food(x, y);
+    if (snake.size % 5 == 0) food.setState(Food::State::kSuper);
     if (snake.Collide(food)) continue;
     return;
     }
@@ -76,6 +83,7 @@ void Game::Update() {
   // Check if there's food over here
   if (snake.Collide(food)) {
     score++;
+    if (food.getState() == Food::State::kSuper) snake.enableShooterMode();
     PlaceFood();
     // Grow snake and increase speed.
     snake.GrowBody();

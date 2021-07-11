@@ -5,6 +5,7 @@
 #include "SDL.h"
 #include "snake.h"
 #include "food.h"
+#include "bullet.h"
 
 class Renderer {
  public:

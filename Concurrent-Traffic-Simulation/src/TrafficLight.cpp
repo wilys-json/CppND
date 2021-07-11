@@ -3,7 +3,7 @@
 #include <future>
 #include "TrafficLight.h"
 
- 
+
 template <typename T>
 T MessageQueue<T>::receive()
 {
@@ -53,18 +53,18 @@ void TrafficLight::simulate()
 void TrafficLight::cycleThroughPhases()
 {
 
-  
+
   // generate random value of 4 to 6 seconds
-  std::random_device rd;  
-  std::mt19937 generator(rd()); 
+  std::random_device rd;
+  std::mt19937 generator(rd());
   std::uniform_int_distribution<> distribution(4000, 6000);
   int duration = distribution(generator);
-  
+
   // create checkpoint
   auto lastCheckPoint = std::chrono::system_clock::now();
-  
+
   while (true) {
-    
+
     auto elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now() - lastCheckPoint).count();
     if (elapsed >= duration) {
       _currentPhase = (_currentPhase == TrafficLightPhase::red) ? TrafficLightPhase::green : TrafficLightPhase::red;
