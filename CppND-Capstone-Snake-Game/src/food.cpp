@@ -1,5 +1,12 @@
 #include "food.h"
 
+void Food::Initialize() {
+  if (!initialized) {
+    putHeadtoMap();
+    putBodytoMap();
+    initialized = true;
+  }
+}
 
 void Food::Update() {
   switch(state) {

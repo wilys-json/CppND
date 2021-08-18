@@ -3,13 +3,13 @@
 
 class SwitchableColor {
   public:
-    enum Color { kRed, kYellow, kGreen, kBlue, kPurple, kWhite };
+    enum class Color { kRed, kYellow, kGreen, kBlue, kPurple, kWhite };
     SwitchableColor() {};
     virtual ~SwitchableColor() {};
     Color getColor() const { return color; };
   protected:
     virtual void Blink() = 0;
-    Color color;
+    Color color{Color::kBlue};
 };
 
 #endif

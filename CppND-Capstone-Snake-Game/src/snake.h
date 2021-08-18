@@ -8,33 +8,40 @@
 #include "SDL.h"
 
 class Bullet;
+class Map;
 
 class Snake : public Movables, public GameObject {
  public:
-  // enum class Direction { kUp, kDown, kLeft, kRight };
-
-  Snake(int grid_width, int grid_height)
-      : GameObject(grid_width, grid_height),
+  // constructor
+  Snake() {};
+  Snake(int grid_width, int grid_height, std::shared_ptr<Map> gameMap)
+      : GameObject(grid_width, grid_height, gameMap),
         Movables(Direction::kUp, 0.1f) {}
-  ~Snake() { bullets.clear(); };
+
+  // destructor
+  ~Snake();
+
+  // Move & Copy Semantics
+  Snake(const Snake& source); // copy constructor
+  Snake& operator=(const Snake& source); // copy assignment operator
+  Snake(Snake&& source); // move constructor
+  Snake& operator=(Snake&& source); // move assignment operator
+
+  // override functions
+  void Initialize() override;
   void Update() override;
   bool Collide(const GameObject &other) override;
 
+  // Actions
   void GrowBody();
   bool SnakeCell(int x, int y);
   void Shoot();
 
-  //
-  // Direction direction = Direction::kUp;
-
+  // Attributes
   int size{1};
   bool alive{true};
   std::vector<std::shared_ptr<Bullet>> bullets;
   void enableShooterMode();
-  // std::vector<Bullet*> bullets;
-  // float head_x;
-  // float head_y;
-  // std::vector<SDL_Point> body;
 
  private:
   void UpdateHead();
@@ -44,10 +51,6 @@ class Snake : public Movables, public GameObject {
   bool shooterMode{false};
   bool growing{false};
 
-
-  // bool controllable{true};
-  // int grid_width;
-  // int grid_height;
 };
 
 #endif

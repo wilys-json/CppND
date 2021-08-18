@@ -2,23 +2,23 @@
 #define BULLET_H
 
 #include <iostream>
+#include <memory>
 #include "Movables.h"
 #include "SwitchableColor.h"
 #include "snake.h"
 
+class Map;
 
 class Bullet : public Movables, public SwitchableColor, public GameObject {
  public:
    Bullet() {};
    ~Bullet(){};
-   Bullet(int grid_width, int grid_height, Snake* snake) :
+   Bullet(int grid_width, int grid_height, std::shared_ptr<Map> gameMap, Snake* snake) :
      shooter(snake),
-     GameObject(grid_width, grid_height),
-     Movables(snake->direction, snake->speed + 0.2f) {
-       origin_x = snake->origin_x;
-       origin_y = snake->origin_y;
-       color = Color::kRed;
-     };
+     GameObject(grid_width, grid_height, gameMap),
+     Movables(snake->direction, snake->speed + 0.2f),
+     SwitchableColor() { Initialize(); };
+   void Initialize() override;
    void Update() override;
    bool Collide(const GameObject &other) override;
 

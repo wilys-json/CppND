@@ -6,6 +6,133 @@
 #include <chrono>
 #include <mutex>
 
+
+Snake::~Snake() {
+  map = nullptr;
+  for (auto & bullet : bullets) bullet = nullptr;
+}
+
+
+Snake::Snake(const Snake& source) {
+  grid_width = source.grid_width;
+  grid_height = source.grid_height;
+  direction = source.direction;
+  speed = source.speed;
+  body = source.body;
+  size = source.size;
+  alive = source.alive;
+  map = source.map;
+  initialized = source.initialized;
+  growing = source.growing;
+  shooterMode = source.shooterMode;
+  origin_x = source.origin_x;
+  origin_y = source.origin_y;
+  if (!source.bullets.empty()) {
+    for (auto& bullet : source.bullets) {
+      if (bullet != nullptr) bullets.push_back(bullet);
+    }
+  }
+}
+
+
+Snake& Snake::operator=(const Snake& source) {
+  grid_width = source.grid_width;
+  grid_height = source.grid_height;
+  direction = source.direction;
+  speed = source.speed;
+  body = source.body;
+  size = source.size;
+  alive = source.alive;
+  map = source.map;
+  initialized = source.initialized;
+  growing = source.growing;
+  shooterMode = source.shooterMode;
+  origin_x = source.origin_x;
+  origin_y = source.origin_y;
+  if (!source.bullets.empty()) {
+    for (auto& bullet : source.bullets) {
+      if (bullet != nullptr) bullets.push_back(bullet);
+    }
+  }
+  return *this;
+}
+
+
+Snake::Snake(Snake&& source) {
+  grid_width = source.grid_width;
+  grid_height = source.grid_height;
+  direction = source.direction;
+  speed = source.speed;
+  body = source.body;
+  size = source.size;
+  alive = source.alive;
+  map = source.map;
+  initialized = source.initialized;
+  growing = source.growing;
+  shooterMode = source.shooterMode;
+  origin_x = source.origin_x;
+  origin_y = source.origin_y;
+  if (!source.bullets.empty()) {
+    for (auto& bullet : source.bullets) {
+      if (bullet != nullptr) bullets.push_back(bullet);
+    }
+  }
+
+  source.grid_width = 0;
+  source.grid_height = 0;
+  source.speed = 0.0;
+  source.body.clear();
+  source.size = 0;
+  source.alive = NULL;
+  source.map = nullptr;
+  source.initialized = NULL;
+  source.growing = NULL;
+  source.shooterMode = NULL;
+  source.origin_x = 0.0;
+  source.origin_y = 0.0;
+  source.bullets.clear();
+
+}
+
+Snake& Snake::operator=(Snake&& source) {
+
+  grid_width = source.grid_width;
+  grid_height = source.grid_height;
+  direction = source.direction;
+  speed = source.speed;
+  body = source.body;
+  size = source.size;
+  alive = source.alive;
+  map = source.map;
+  initialized = source.initialized;
+  growing = source.growing;
+  shooterMode = source.shooterMode;
+  origin_x = source.origin_x;
+  origin_y = source.origin_y;
+  if (!source.bullets.empty()) {
+    for (auto& bullet : source.bullets) {
+      if (bullet != nullptr) bullets.push_back(bullet);
+    }
+  }
+
+  source.grid_width = 0;
+  source.grid_height = 0;
+  source.speed = 0.0;
+  source.body.clear();
+  source.size = 0;
+  source.alive = NULL;
+  source.map = nullptr;
+  source.initialized = NULL;
+  source.growing = NULL;
+  source.shooterMode = NULL;
+  source.origin_x = 0.0;
+  source.origin_y = 0.0;
+  source.bullets.clear();
+
+  return *this;
+
+}
+
 void Snake::enableShooterMode() {
   // std::cout << "enable shooter mode." << std::endl;
   shooterMode = true;
@@ -13,6 +140,14 @@ void Snake::enableShooterMode() {
   // std::cout << "shooter mode ends." << std::endl;
   // shooterMode = false;
 }
+
+void Snake::Initialize() {
+  if (!initialized) {
+    putHeadtoMap();
+    putBodytoMap();
+    initialized = true;
+  }
+};
 
 void Snake::Update() {
   SDL_Point prev_cell{
@@ -79,6 +214,7 @@ void Snake::UpdateHead() {
   // Wrap the Snake around to the beginning if going off of the screen.
   origin_x = fmod(origin_x + grid_width, grid_width);
   origin_y = fmod(origin_y + grid_height, grid_height);
+  putHeadtoMap();
 }
 
 void Snake::UpdateBullets() {
@@ -97,11 +233,14 @@ void Snake::UpdateBody(SDL_Point &current_head_cell, SDL_Point &prev_head_cell) 
     size++;
   }
 
+
   // Check if the snake has died.
   for (auto const &item : body) {
     if (current_head_cell.x == item.x && current_head_cell.y == item.y) {
       alive = false;
+      return;
     }
+    (*map)[item.y][item.x] = shared_from_this();
   }
 }
 
@@ -109,7 +248,7 @@ void Snake::GrowBody() { growing = true; }
 
 void Snake::Shoot() {
   if(!alive || !shooterMode) return;
-  std::shared_ptr<Bullet> bullet = std::make_shared<Bullet>(grid_width, grid_height, this);
+  std::shared_ptr<Bullet> bullet = std::make_shared<Bullet>(grid_width, grid_height, map, this);
   // Bullet* bullet = new Bullet(grid_width, grid_height, this);
   bullets.push_back(std::move(bullet));
 }

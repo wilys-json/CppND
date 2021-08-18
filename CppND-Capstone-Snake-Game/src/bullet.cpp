@@ -4,10 +4,17 @@
 void Bullet::removeThisFromShooter() {
   for (auto &bullet : shooter->bullets) {
     if (bullet.get() == this) bullet.reset();
-    // if (bullet == this) delete bullet;
     return;
   }
-  shooter = nullptr;
+}
+
+void Bullet::Initialize() {
+  if(!initialized) {
+    origin_x = shooter->origin_x;
+    origin_y = shooter->origin_y;
+    color = Color::kRed;
+    initialized = true;
+  }
 }
 
 void Bullet::Update() {
@@ -19,10 +26,8 @@ void Bullet::Update() {
   Blink();
   SDL_Point current_cell{
       static_cast<int>(origin_x),
-      static_cast<int>(origin_y)};  // Capture the head's cell after updating.
+      static_cast<int>(origin_y)};
 
-  // Update all of the body vector items if the snake head has moved to a new
-  // cell.
   if (current_cell.x != prev_cell.x || current_cell.y != prev_cell.y) {
     UpdateBody(current_cell, prev_cell);
   }
@@ -31,6 +36,7 @@ void Bullet::Update() {
 void Bullet::UpdateBody(SDL_Point &current_cell, SDL_Point &prev_cell) {
     body.push_back(prev_cell);
     body.erase(body.begin());
+    putBodytoMap();
 }
 
 void Bullet::UpdateHead() {
@@ -57,9 +63,10 @@ void Bullet::UpdateHead() {
    || origin_y == 0 || origin_y >= grid_height) {
      origin_x = -1;
      origin_y = -1;
-     removeThisFromShooter();
+     return;
    }
 
+   putBodytoMap();
 }
 
 void Bullet::Blink() {
