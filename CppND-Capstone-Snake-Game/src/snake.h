@@ -1,17 +1,21 @@
 #ifndef SNAKE_H
 #define SNAKE_H
 
-#include <vector>
-#include <memory>
-#include <thread>
+#include <chrono>
+#include <cmath>
 #include "Movables.h"
 #include "SDL.h"
 
 class Bullet;
 class Map;
+class Food;
 
 class Snake : public Movables, public GameObject {
  public:
+
+  // Enum classes
+  enum class State { kNormal, kShooter, kPoisoned, kSpeeding };
+
   // constructor
   Snake() {};
   Snake(int grid_width, int grid_height, std::shared_ptr<Map> gameMap)
@@ -21,11 +25,11 @@ class Snake : public Movables, public GameObject {
   // destructor
   ~Snake();
 
-  // Move & Copy Semantics
-  Snake(const Snake& source); // copy constructor
-  Snake& operator=(const Snake& source); // copy assignment operator
-  Snake(Snake&& source); // move constructor
-  Snake& operator=(Snake&& source); // move assignment operator
+  // // Move & Copy Semantics
+  // Snake(const Snake& source); // copy constructor
+  // Snake& operator=(const Snake& source); // copy assignment operator
+  // Snake(Snake&& source); // move constructor
+  // Snake& operator=(Snake&& source); // move assignment operator
 
   // override functions
   void Initialize() override;
@@ -34,22 +38,30 @@ class Snake : public Movables, public GameObject {
 
   // Actions
   void GrowBody();
-  bool SnakeCell(int x, int y);
   void Shoot();
+  void enterShooterMode();
+  void Digest();
+  void Consume(std::shared_ptr<Food> &food);
 
   // Attributes
   int size{1};
   bool alive{true};
   std::vector<std::shared_ptr<Bullet>> bullets;
-  void enableShooterMode();
+
+  // Getters
+  State getState() { return state; };
+
+  // Setters
+  void setModeDuration(const int& randomNumber);
 
  private:
   void UpdateHead();
   void UpdateBullets();
   void UpdateBody(SDL_Point &current_cell, SDL_Point &prev_cell);
-  std::thread threads;
-  bool shooterMode{false};
+  State state{State::kNormal};
   bool growing{false};
+  int ModeDuration{0};
+  std::shared_ptr<Food> foodConsumed;
 
 };
 

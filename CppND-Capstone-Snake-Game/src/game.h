@@ -39,7 +39,7 @@ class Game : public std::enable_shared_from_this<Game>{
 
   void PlaceFood();
   void Update();
-  void clearMap();
+  void clearMap() { map->clear(); } ;
 };
 
 #endif

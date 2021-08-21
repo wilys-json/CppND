@@ -67,11 +67,14 @@ void Renderer::Render(std::vector<std::shared_ptr<GameObject>>& objectPool) {
         case SwitchableColor::Color::kWhite:
           SDL_SetRenderDrawColor(sdl_renderer, 0xFF, 0xFF, 0xFF, 0xFF);
           break;
-        case SwitchableColor::Color::kBlue:
-          SDL_SetRenderDrawColor(sdl_renderer, 0x00, 0x7A, 0xCC, 0xFF);
+        case SwitchableColor::Color::kPurple:
+          SDL_SetRenderDrawColor(sdl_renderer, 0x99, 0x00, 0xFF, 0xFF);
           break;
         case SwitchableColor::Color::kRed:
           SDL_SetRenderDrawColor(sdl_renderer, 0xFF, 0x00, 0x00, 0xFF);
+          break;
+        case SwitchableColor::Color::kGreen:
+          SDL_SetRenderDrawColor(sdl_renderer, 0x99, 0xFF, 0x99, 0xFF);
           break;
       }
       block.x = food->origin_x * block.w;
@@ -93,10 +96,24 @@ void Renderer::Render(std::vector<std::shared_ptr<GameObject>>& objectPool) {
         block.x = static_cast<int>(snake->origin_x) * block.w;
         block.y = static_cast<int>(snake->origin_y) * block.h;
         if (snake->alive) {
-          SDL_SetRenderDrawColor(sdl_renderer, 0x00, 0x7A, 0xCC, 0xFF);
+          switch(snake->getState()) {
+            case Snake::State::kNormal:
+              SDL_SetRenderDrawColor(sdl_renderer, 0x00, 0x7A, 0xCC, 0xFF);
+              break;
+            case Snake::State::kShooter:
+              SDL_SetRenderDrawColor(sdl_renderer, 0xFF, 0xCC, 0x00, 0xFF);
+              break;
+            case Snake::State::kPoisoned:
+              SDL_SetRenderDrawColor(sdl_renderer, 0x99, 0x00, 0xFF, 0xFF);
+              break;
+            case Snake::State::kSpeeding:
+              SDL_SetRenderDrawColor(sdl_renderer, 0x99, 0xFF, 0x99, 0xFF);
+              break;
+            }
         } else {
-          SDL_SetRenderDrawColor(sdl_renderer, 0xFF, 0x00, 0x00, 0xFF);
-        }
+              SDL_SetRenderDrawColor(sdl_renderer, 0xFF, 0x00, 0x00, 0xFF);
+          }
+
         SDL_RenderFillRect(sdl_renderer, &block);
 
         // Render bullet & bullet body

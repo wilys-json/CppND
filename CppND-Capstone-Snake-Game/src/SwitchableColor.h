@@ -9,7 +9,7 @@ class SwitchableColor {
     Color getColor() const { return color; };
   protected:
     virtual void Blink() = 0;
-    Color color{Color::kBlue};
+    Color color{Color::kWhite};
 };
 
 #endif

@@ -40,7 +40,7 @@ void Game::Run(Controller const &controller, Renderer &renderer,
     // Input, Update, Render - the main game loop.
     controller.HandleInput(running, snake);
     Update();
-    // renderer.Render(*snake, *food);
+    // map->print(); //  print to debug
     renderer.Render(objectPool);
 
     frame_end = SDL_GetTicks();
@@ -83,6 +83,12 @@ void Game::PlaceFood() {
         std::shared_ptr<Food> food = std::dynamic_pointer_cast<Food>(gameobject);
         food->Initialize();
         if (score > 0 && score % 5 == 0) food->setState(Food::State::kSuper);
+        if (x % 5 == 0 && y % 5 != 0) {
+          food->setState(Food::State::kPoison);
+        }
+        if (x % 5 == 0 && y % 5 == 0) {
+          food->setState(Food::State::kSpeedup);
+        }
         return;
      }
    }
@@ -95,12 +101,11 @@ void Game::PlaceFood() {
  }
 }
 
-void Game::clearMap() { for(auto row : *map) for(auto ptr : row) ptr = nullptr;}
-
 void Game::Update() {
 
   std::shared_ptr<Food> food;
   std::shared_ptr<Snake> snake;
+  int randomInt = random_w(engine);
 
   clearMap();
 
@@ -115,12 +120,10 @@ void Game::Update() {
 
   // Check if there's food over here
   if (snake->Collide(*food)) {
-    score++;
-    if (food->getState() == Food::State::kSuper) snake->enableShooterMode();
+    if (food->getState() != Food::State::kPoison) score++;
+    snake->setModeDuration(randomInt);
+    snake->Consume(food);
     PlaceFood();
-    // Grow snake and increase speed.
-    snake->GrowBody();
-    snake->speed += 0.02;
   }
 }
 

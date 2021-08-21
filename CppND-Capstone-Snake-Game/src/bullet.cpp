@@ -1,10 +1,18 @@
 #include <vector>
 #include "bullet.h"
+#include <iostream>
+
+Bullet::~Bullet() {
+  map = nullptr;
+  shooter = nullptr;
+}
 
 void Bullet::removeThisFromShooter() {
-  for (auto &bullet : shooter->bullets) {
-    if (bullet.get() == this) bullet.reset();
-    return;
+  for (int i = 0; i < shooter->bullets.size(); ++i) {
+    if (shooter->bullets[i].get() == this) {
+      shooter->bullets.erase(shooter->bullets.begin() + i);
+      return;
+    }
   }
 }
 
@@ -18,26 +26,20 @@ void Bullet::Initialize() {
 }
 
 void Bullet::Update() {
+
   SDL_Point prev_cell{
       static_cast<int>(origin_x),
       static_cast<int>(
           origin_y)};
   UpdateHead();
   Blink();
+  putHeadtoMap();
+
   SDL_Point current_cell{
       static_cast<int>(origin_x),
       static_cast<int>(origin_y)};
-
-  if (current_cell.x != prev_cell.x || current_cell.y != prev_cell.y) {
-    UpdateBody(current_cell, prev_cell);
-  }
 }
 
-void Bullet::UpdateBody(SDL_Point &current_cell, SDL_Point &prev_cell) {
-    body.push_back(prev_cell);
-    body.erase(body.begin());
-    putBodytoMap();
-}
 
 void Bullet::UpdateHead() {
 
@@ -59,14 +61,10 @@ void Bullet::UpdateHead() {
       break;
   }
 
-  if (origin_x == 0 || origin_x >= grid_width
-   || origin_y == 0 || origin_y >= grid_height) {
-     origin_x = -1;
-     origin_y = -1;
-     return;
-   }
-
-   putBodytoMap();
+  if (offGrid()) {
+    origin_x = -1;
+    origin_y = -1;
+  }
 }
 
 void Bullet::Blink() {

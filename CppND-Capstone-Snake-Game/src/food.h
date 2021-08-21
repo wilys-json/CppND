@@ -6,7 +6,6 @@
 #include "GameObject.h"
 #include "SwitchableColor.h"
 
-
 class Food : public GameObject, public SwitchableColor{
 
   public:

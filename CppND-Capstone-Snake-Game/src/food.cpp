@@ -2,8 +2,7 @@
 
 void Food::Initialize() {
   if (!initialized) {
-    putHeadtoMap();
-    putBodytoMap();
+    projectToMap();
     initialized = true;
   }
 }
@@ -23,6 +22,7 @@ void Food::Update() {
       color = Color::kYellow;
       break;
   }
+  projectToMap();
 }
 
 void Food::Blink() {
@@ -30,7 +30,7 @@ void Food::Blink() {
 }
 
 void Food::Poisoned() {
-  color = Color::kPurple;
+  color = (color == Color::kPurple) ? Color::kGreen : Color::kPurple;
 }
 
 void Food::turnSpeedUp() {

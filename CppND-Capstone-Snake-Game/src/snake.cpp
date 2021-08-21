@@ -1,150 +1,225 @@
 #include "snake.h"
 #include "bullet.h"
-#include <cmath>
-#include <iostream>
-#include <thread>
-#include <chrono>
-#include <mutex>
+#include "food.h"
 
 
 Snake::~Snake() {
   map = nullptr;
-  for (auto & bullet : bullets) bullet = nullptr;
+  for (auto& bullet : bullets) bullet = nullptr;
+  for (auto& thread : threads) thread.join();
 }
 
 
-Snake::Snake(const Snake& source) {
-  grid_width = source.grid_width;
-  grid_height = source.grid_height;
-  direction = source.direction;
-  speed = source.speed;
-  body = source.body;
-  size = source.size;
-  alive = source.alive;
-  map = source.map;
-  initialized = source.initialized;
-  growing = source.growing;
-  shooterMode = source.shooterMode;
-  origin_x = source.origin_x;
-  origin_y = source.origin_y;
-  if (!source.bullets.empty()) {
-    for (auto& bullet : source.bullets) {
-      if (bullet != nullptr) bullets.push_back(bullet);
-    }
+// Snake::Snake(const Snake& source) {
+//     std::shared_lock<std::shared_mutex> _sourceLock(source._mtx, std::defer_lock);
+//     grid_width = source.grid_width;
+//     grid_height = source.grid_height;
+//     direction = source.direction;
+//     speed = source.speed;
+//     body = source.body;
+//     size = source.size;
+//     alive = source.alive;
+//     map = source.map;
+//     initialized = source.initialized;
+//     growing = source.growing;
+//     state = source.state;
+//     origin_x = source.origin_x;
+//     origin_y = source.origin_y;
+//     if (!source.bullets.empty()) {
+//       for (auto& bullet : source.bullets) {
+//         if (bullet != nullptr) bullets.push_back(bullet);
+//      }
+//    }
+//     // if (!source.threads.empty()) {
+//     //   for (auto& thread : source.threads) {
+//     //     std::thread sourceThread = thread;
+//     //     threads.push_back(std::move(sourceThread));
+//     //   }
+//     // }
+// }
+//
+//
+// Snake& Snake::operator=(const Snake& source) {
+//   if (this!=&source) {
+//     std::unique_lock<std::shared_mutex> _thisLock(_mtx, std::defer_lock);
+//     std::shared_lock<std::shared_mutex> _sourceLock(source._mtx, std::defer_lock);
+//     std::lock(_thisLock, _sourceLock);
+//     grid_width = source.grid_width;
+//     grid_height = source.grid_height;
+//     direction = source.direction;
+//     speed = source.speed;
+//     body = source.body;
+//     size = source.size;
+//     alive = source.alive;
+//     map = source.map;
+//     initialized = source.initialized;
+//     growing = source.growing;
+//     state = source.state;
+//     origin_x = source.origin_x;
+//     origin_y = source.origin_y;
+//     if (!source.bullets.empty()) {
+//       for (auto& bullet : source.bullets) {
+//         if (bullet != nullptr) bullets.push_back(bullet);
+//       }
+//     }
+//     // if (!source.threads.empty()) {
+//     //   for (auto& thread : source.threads) {
+//     //     std::thread sourceThread = thread;
+//     //     threads.push_back(std::move(sourceThread));
+//     //   }
+//     // }
+//   }
+//   return *this;
+// }
+//
+//
+// Snake::Snake(Snake&& source) {
+//   std::shared_lock<std::shared_mutex> _sourceLock(source._mtx, std::defer_lock);
+//   threads = std::move(source.threads);
+//   grid_width = source.grid_width;
+//   grid_height = source.grid_height;
+//   direction = source.direction;
+//   speed = source.speed;
+//   body = source.body;
+//   size = source.size;
+//   alive = source.alive;
+//   map = source.map;
+//   initialized = source.initialized;
+//   growing = source.growing;
+//   state = source.state;
+//   origin_x = source.origin_x;
+//   origin_y = source.origin_y;
+//   if (!source.bullets.empty()) {
+//     for (auto& bullet : source.bullets) {
+//       if (bullet != nullptr) bullets.push_back(std::move(bullet));
+//     }
+//   }
+//   if (!source.threads.empty()) {
+//     for (auto& thread : source.threads) {
+//       threads.push_back(std::move(thread));
+//     }
+//   }
+//
+//   source.grid_width = 0;
+//   source.grid_height = 0;
+//   source.speed = 0.0;
+//   source.body.clear();
+//   source.size = 0;
+//   source.alive = NULL;
+//   source.map = nullptr;
+//   source.initialized = NULL;
+//   source.growing = NULL;
+//   source.origin_x = 0.0;
+//   source.origin_y = 0.0;
+//   source.bullets.clear();
+//
+// }
+//
+// Snake& Snake::operator=(Snake&& source) {
+//   if (this!=&source) {
+//     std::unique_lock<std::shared_mutex> _thisLock(_mtx, std::defer_lock);
+//     std::shared_lock<std::shared_mutex> _sourceLock(source._mtx, std::defer_lock);
+//     std::lock(_thisLock, _sourceLock);
+//     threads = std::move(source.threads);
+//     grid_width = source.grid_width;
+//     grid_height = source.grid_height;
+//     direction = source.direction;
+//     speed = source.speed;
+//     body = source.body;
+//     size = source.size;
+//     alive = source.alive;
+//     map = source.map;
+//     initialized = source.initialized;
+//     growing = source.growing;
+//     state = source.state;
+//     origin_x = source.origin_x;
+//     origin_y = source.origin_y;
+//     if (!source.bullets.empty()) {
+//       for (auto& bullet : source.bullets) {
+//         if (bullet != nullptr) bullets.push_back(bullet);
+//       }
+//     }
+//     if (!source.threads.empty()) {
+//       for (auto& thread : source.threads) {
+//         threads.push_back(std::move(thread));
+//       }
+//     }
+//
+//     source.grid_width = 0;
+//     source.grid_height = 0;
+//     source.speed = 0.0;
+//     source.body.clear();
+//     source.size = 0;
+//     source.alive = NULL;
+//     source.map = nullptr;
+//     source.initialized = NULL;
+//     source.growing = NULL;
+//     source.origin_x = 0.0;
+//     source.origin_y = 0.0;
+//     source.bullets.clear();
+//   }
+//
+//   return *this;
+//
+// }
+
+void Snake::enterShooterMode() {
+  std::cout << "enable shooter mode for " << ModeDuration << " seconds." << std::endl;
+  state = State::kShooter;
+  std::this_thread::sleep_for(std::chrono::seconds(ModeDuration+(size / 5)));
+  state = State::kNormal;
+  std::cout << "shooter mode ends." << std::endl;
+}
+
+void Snake::Digest() {
+  std::lock_guard<std::mutex> Lock(_mtx);
+  switch(foodConsumed->getState()) {
+    case Food::State::kNormal:
+      speed += 0.02;
+      break;
+    case Food::State::kSuper:
+      std::cout << "enable shooter mode for ";
+      std::cout << ModeDuration+(size / 5) << " seconds." << std::endl;
+      state = State::kShooter;
+      speed += 0.04;
+      std::this_thread::sleep_for(std::chrono::seconds(ModeDuration+(size / 5)));
+      if (alive) {
+        state = State::kNormal;
+        speed -= 0.02;
+        std::cout << "shooter mode ends." << std::endl;
+      }
+      break;
+    case Food::State::kPoison:
+      std::cout << "Oh no! The snake will be poisoned for ";
+      std::cout << ModeDuration+(size / 5) << " seconds." << std::endl;
+      state = State::kPoisoned;
+      speed /= 2;
+      std::this_thread::sleep_for(std::chrono::seconds(ModeDuration+(size / 5)));
+      if (alive) {
+        state = State::kNormal;
+        speed *= 2;
+        std::cout << "poisoned mode ends." << std::endl;
+      }
+      break;
+    case Food::State::kSpeedup:
+      std::cout << "Wow! The snake will rush for ";
+      std::cout << ModeDuration+(size / 5) << " seconds." << std::endl;
+      state = State::kSpeeding;
+      speed *= 2;
+      std::this_thread::sleep_for(std::chrono::seconds(ModeDuration+(size / 5)));
+      if (alive) {
+        state = State::kNormal;
+        speed /= 2;
+        std::cout << "speeding mode ends." << std::endl;
+      }
+      break;
   }
 }
 
-
-Snake& Snake::operator=(const Snake& source) {
-  grid_width = source.grid_width;
-  grid_height = source.grid_height;
-  direction = source.direction;
-  speed = source.speed;
-  body = source.body;
-  size = source.size;
-  alive = source.alive;
-  map = source.map;
-  initialized = source.initialized;
-  growing = source.growing;
-  shooterMode = source.shooterMode;
-  origin_x = source.origin_x;
-  origin_y = source.origin_y;
-  if (!source.bullets.empty()) {
-    for (auto& bullet : source.bullets) {
-      if (bullet != nullptr) bullets.push_back(bullet);
-    }
-  }
-  return *this;
-}
-
-
-Snake::Snake(Snake&& source) {
-  grid_width = source.grid_width;
-  grid_height = source.grid_height;
-  direction = source.direction;
-  speed = source.speed;
-  body = source.body;
-  size = source.size;
-  alive = source.alive;
-  map = source.map;
-  initialized = source.initialized;
-  growing = source.growing;
-  shooterMode = source.shooterMode;
-  origin_x = source.origin_x;
-  origin_y = source.origin_y;
-  if (!source.bullets.empty()) {
-    for (auto& bullet : source.bullets) {
-      if (bullet != nullptr) bullets.push_back(bullet);
-    }
-  }
-
-  source.grid_width = 0;
-  source.grid_height = 0;
-  source.speed = 0.0;
-  source.body.clear();
-  source.size = 0;
-  source.alive = NULL;
-  source.map = nullptr;
-  source.initialized = NULL;
-  source.growing = NULL;
-  source.shooterMode = NULL;
-  source.origin_x = 0.0;
-  source.origin_y = 0.0;
-  source.bullets.clear();
-
-}
-
-Snake& Snake::operator=(Snake&& source) {
-
-  grid_width = source.grid_width;
-  grid_height = source.grid_height;
-  direction = source.direction;
-  speed = source.speed;
-  body = source.body;
-  size = source.size;
-  alive = source.alive;
-  map = source.map;
-  initialized = source.initialized;
-  growing = source.growing;
-  shooterMode = source.shooterMode;
-  origin_x = source.origin_x;
-  origin_y = source.origin_y;
-  if (!source.bullets.empty()) {
-    for (auto& bullet : source.bullets) {
-      if (bullet != nullptr) bullets.push_back(bullet);
-    }
-  }
-
-  source.grid_width = 0;
-  source.grid_height = 0;
-  source.speed = 0.0;
-  source.body.clear();
-  source.size = 0;
-  source.alive = NULL;
-  source.map = nullptr;
-  source.initialized = NULL;
-  source.growing = NULL;
-  source.shooterMode = NULL;
-  source.origin_x = 0.0;
-  source.origin_y = 0.0;
-  source.bullets.clear();
-
-  return *this;
-
-}
-
-void Snake::enableShooterMode() {
-  // std::cout << "enable shooter mode." << std::endl;
-  shooterMode = true;
-  // std::this_thread::sleep_for(std::chrono::seconds(5));
-  // std::cout << "shooter mode ends." << std::endl;
-  // shooterMode = false;
-}
 
 void Snake::Initialize() {
   if (!initialized) {
-    putHeadtoMap();
-    putBodytoMap();
+    projectToMap();
     initialized = true;
   }
 };
@@ -218,7 +293,14 @@ void Snake::UpdateHead() {
 }
 
 void Snake::UpdateBullets() {
-  for (auto &bullet : bullets) bullet->Update();
+  if (!bullets.empty()) {
+    for (int i; i < bullets.size(); ++i) {
+      if (bullets[i] != nullptr) {
+        bullets[i]->Update();
+        if (bullets[i]->offGrid()) bullets[i] = nullptr;
+      }
+    }
+  }
 }
 
 void Snake::UpdateBody(SDL_Point &current_head_cell, SDL_Point &prev_head_cell) {
@@ -234,7 +316,7 @@ void Snake::UpdateBody(SDL_Point &current_head_cell, SDL_Point &prev_head_cell) 
   }
 
 
-  // Check if the snake has died.
+  // Check if the snake has died & put body to map
   for (auto const &item : body) {
     if (current_head_cell.x == item.x && current_head_cell.y == item.y) {
       alive = false;
@@ -246,22 +328,22 @@ void Snake::UpdateBody(SDL_Point &current_head_cell, SDL_Point &prev_head_cell) 
 
 void Snake::GrowBody() { growing = true; }
 
-void Snake::Shoot() {
-  if(!alive || !shooterMode) return;
-  std::shared_ptr<Bullet> bullet = std::make_shared<Bullet>(grid_width, grid_height, map, this);
-  // Bullet* bullet = new Bullet(grid_width, grid_height, this);
-  bullets.push_back(std::move(bullet));
+void Snake::setModeDuration(const int& randomNumber) {
+  ModeDuration = (randomNumber % 10);
 }
 
-// Inefficient method to check if cell is occupied by snake.
-bool Snake::SnakeCell(int x, int y) {
-  if (x == static_cast<int>(origin_x) && y == static_cast<int>(origin_y)) {
-    return true;
+void Snake::Consume(std::shared_ptr<Food>& food) {
+  if (food->getState() != Food::State::kPoison) GrowBody();
+  foodConsumed = food;
+  // Ensure the snake enters one state at a time
+  if (state == State::kNormal) {
+    threads.emplace_back(std::thread(&Snake::Digest, this));
   }
-  for (auto const &item : body) {
-    if (x == item.x && y == item.y) {
-      return true;
-    }
-  }
-  return false;
+}
+
+void Snake::Shoot() {
+  if(!alive || state != State::kShooter) return;
+  bullets.push_back(
+    std::move(std::make_shared<Bullet>(grid_width,grid_height, map,
+        std::dynamic_pointer_cast<Snake>(shared_from_this()))));
 }

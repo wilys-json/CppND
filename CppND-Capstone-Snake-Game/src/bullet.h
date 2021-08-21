@@ -12,22 +12,27 @@ class Map;
 class Bullet : public Movables, public SwitchableColor, public GameObject {
  public:
    Bullet() {};
-   ~Bullet(){};
-   Bullet(int grid_width, int grid_height, std::shared_ptr<Map> gameMap, Snake* snake) :
+   ~Bullet();
+   Bullet(int grid_width,
+          int grid_height,
+          std::shared_ptr<Map> gameMap,
+          std::shared_ptr<Snake> snake) :
      shooter(snake),
      GameObject(grid_width, grid_height, gameMap),
      Movables(snake->direction, snake->speed + 0.2f),
      SwitchableColor() { Initialize(); };
+
+   // Implement GameObject
    void Initialize() override;
    void Update() override;
    bool Collide(const GameObject &other) override;
 
  private:
-   Snake* shooter;
+   std::shared_ptr<Snake> shooter;
    void UpdateHead();
    void Blink() override;
    void removeThisFromShooter();
-   void UpdateBody(SDL_Point &current_cell, SDL_Point &prev_cell);
+   // void UpdateBody(SDL_Point &current_cell, SDL_Point &prev_cell);
 };
 
 #endif
