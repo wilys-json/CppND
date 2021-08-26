@@ -40,7 +40,7 @@ class Snake : public Movables, public GameObject {
   // Actions
   void GrowBody();
   // void Shoot();
-  void Consume(std::shared_ptr<Food>& food,
+  void Consume(std::shared_ptr<Food> food,
                std::promise<Food::State> prmFoodState);
 
   // Attributes & Containers

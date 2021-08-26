@@ -28,7 +28,6 @@ private:
     std::mutex _mutex;
 };
 
-
 class Game : public std::enable_shared_from_this<Game>{
  public:
   Game(std::size_t grid_width, std::size_t grid_height);
@@ -51,7 +50,8 @@ class Game : public std::enable_shared_from_this<Game>{
   std::uniform_int_distribution<int> random_h;
   MessageQueue<Food::State> foodConsumptionQueue;
   std::vector<std::thread> foodConsumptionThreads;
-  std::vector<std::future<Food::State>> foodConsumptionFutures;
+  std::vector<std::promise<Food::State>> foodConsumptionPromises;
+  // std::vector<std::future<Food::State>> foodConsumptionFutures;
   int score{0};
 
   void PlaceFood();

@@ -135,7 +135,7 @@ void Snake::setRandomInt(const int& randomNumber) {
 }
 
 
-void Snake::Consume(std::shared_ptr<Food>& food,
+void Snake::Consume(std::shared_ptr<Food> food,
                     std::promise<Food::State> prmFoodState) {
   if (food->getState() != Food::State::kPoison) GrowBody();
   foodConsumed = food;
@@ -143,6 +143,7 @@ void Snake::Consume(std::shared_ptr<Food>& food,
   if (state == State::kNormal) {
     threads.emplace_back(std::thread(&Snake::Digest, this));
   }
+
   prmFoodState.set_value(std::move(foodConsumed->getState()));
 }
 

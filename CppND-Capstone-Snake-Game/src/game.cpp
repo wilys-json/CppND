@@ -1,5 +1,6 @@
 #include <future>
 #include "game.h"
+#include "snake.h"
 
 
 template <typename T>
@@ -115,34 +116,42 @@ void Game::Update() {
   for (auto& gameobject : objectPool) {
     gameobject->Update();
     if(gameobject->isA<Snake>()) {
-      std::dynamic_pointer_cast<Snake>(gameobject)->setRandomInt(randomInt);
-      if (std::dynamic_pointer_cast<Snake>(gameobject)->Collide(std::move(food.get())))
+      std::shared_ptr<Snake> snake = std::dynamic_pointer_cast<Snake>(gameobject);
+      snake->setRandomInt(randomInt);
+      if (snake->Collide(std::move(food.get())))
       {
         std::promise<Food::State> prmFoodState;
-        std::future<Food::State> ftrFoodState = prmFoodState.get_future();
-        foodConsumptionFutures.push_back(std::move(ftrFoodState));
+        // std::future<Food::State> ftrFoodState = prmFoodState.get_future();
+        // foodConsumptionPromises.push_back(prmFoodState)
         foodConsumptionThreads.push_back(std::thread(&Snake::Consume,
-          std::move(std::dynamic_pointer_cast<Snake>(gameobject).get()), food, std::move(prmFoodState)));
+          snake, food, std::move(prmFoodState)));
       }
     }
   }
 
   UpdateScore();
 
+
+
 }
 
 
 void Game::UpdateScore() {
+  if (!foodConsumptionFutures.empty()) {
+    for (auto& foodConsumptionFuture : foodConsumptionFutures) {
+      foodConsumptionFuture.wait();
+      std::cout << "future wait finish" << std::endl;
+      foodConsumptionQueue.send(std::move(foodConsumptionFuture.get()));
+      std::cout << "future sent to msg queue" << std::endl;
+    }
 
-  for (auto& foodConsumptionFuture : foodConsumptionFutures) {
-    foodConsumptionQueue.send(std::move(foodConsumptionFuture.get()));
-  }
-
-  for (auto& thread : foodConsumptionThreads) thread.join();
+    for (auto& thread : foodConsumptionThreads) thread.join();
 
 
-  if (foodConsumptionQueue.receive() != Food::State::kPoison) {
-       score++;
+    if (foodConsumptionQueue.receive() != Food::State::kPoison) {
+         score++;
+         PlaceFood();
+    }
   }
 }
 
