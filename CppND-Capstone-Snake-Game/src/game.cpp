@@ -1,15 +1,25 @@
-
-#include <iostream>
-#include <memory>
-#include <vector>
-#include <typeinfo>
-#include "SDL.h"
+#include <future>
 #include "game.h"
-#include "map.h"
-#include "food.h"
-#include "snake.h"
-#include "controller.h"
-#include "renderer.h"
+
+
+template <typename T>
+T MessageQueue<T>::receive()
+{
+
+  std::unique_lock<std::mutex> Lock(_mutex);
+  _condition.wait(Lock, [this]{return !_queue.empty();});
+  T receivedMessage = std::move(_queue.back());
+  _queue.clear();
+  return receivedMessage;
+}
+
+template <typename T>
+void MessageQueue<T>::send(T&& msg)
+{
+  std::lock_guard<std::mutex> Lock(_mutex);
+  _queue.push_back(std::move(msg));
+  _condition.notify_one();
+}
 
 Game::Game(std::size_t grid_width, std::size_t grid_height)
     : engine(dev()),
@@ -17,10 +27,10 @@ Game::Game(std::size_t grid_width, std::size_t grid_height)
       random_h(0, static_cast<int>(grid_height - 1)) { Initialize(grid_width, grid_height); }
 
 void Game::Initialize(std::size_t grid_width, std::size_t grid_height) {
-  map = std::make_shared<Map>(grid_height, grid_width);
-  snake = std::make_shared<Snake>(grid_width, grid_height, map);
-  snake->Initialize();
-  objectPool.push_back(snake);
+  map = std::make_shared<Map<GameObject>>(grid_height, grid_width);
+  player = std::make_shared<PlayerSnake>(grid_width, grid_height, map);
+  player->Initialize();
+  objectPool.push_back(player);
   // objectPool.push_back(std::make_shared<Food>()); // push back dummy food first
   PlaceFood();
 }
@@ -38,7 +48,7 @@ void Game::Run(Controller const &controller, Renderer &renderer,
     frame_start = SDL_GetTicks();
 
     // Input, Update, Render - the main game loop.
-    controller.HandleInput(running, snake);
+    controller.HandleInput(running, player);
     Update();
     // map->print(); //  print to debug
     renderer.Render(objectPool);
@@ -74,58 +84,68 @@ void Game::PlaceFood() {
 
     // Check that the location is not occupied by a snake item before placing
     // food.
-    if ((*map)[y][x] != nullptr) continue;
+    if (map->at(y, x) != nullptr) continue;
 
     // Reassign the Food pointer pointing to new Food
     for (auto &gameobject : objectPool) {
-      if (*gameobject == gameClasses.FOOD) {
+      if (gameobject->isA<Food>()) {
         gameobject.reset(new Food(x, y, map));
-        std::shared_ptr<Food> food = std::dynamic_pointer_cast<Food>(gameobject);
-        food->Initialize();
-        if (score > 0 && score % 5 == 0) food->setState(Food::State::kSuper);
-        if (x % 5 == 0 && y % 5 != 0) {
-          food->setState(Food::State::kPoison);
-        }
-        if (x % 5 == 0 && y % 5 == 0) {
-          food->setState(Food::State::kSpeedup);
-        }
+        food = std::dynamic_pointer_cast<Food>(gameobject);
+        food->Initialize(score, x, y);
         return;
      }
    }
 
    // Initialize Food
-   std::shared_ptr<Food> newFood = std::make_shared<Food>(x, y, map);
-   newFood->Initialize();
-   objectPool.push_back(newFood);
+   food = std::make_shared<Food>(x, y, map);
+   food->Initialize();
+   objectPool.push_back(food);
    return;
  }
 }
 
 void Game::Update() {
 
-  std::shared_ptr<Food> food;
-  std::shared_ptr<Snake> snake;
+  if(!player->alive) return;
+
+  // std::shared_ptr<Snake> eater;
   int randomInt = random_w(engine);
 
   clearMap();
-
   for (auto& gameobject : objectPool) {
-    if(*gameobject == gameClasses.FOOD) food = std::dynamic_pointer_cast<Food>(gameobject);
-    if(*gameobject == gameClasses.SNAKE) {
-      snake = std::dynamic_pointer_cast<Snake>(gameobject);
-      if (!snake->alive) return;
-    }
     gameobject->Update();
+    if(gameobject->isA<Snake>()) {
+      std::dynamic_pointer_cast<Snake>(gameobject)->setRandomInt(randomInt);
+      if (std::dynamic_pointer_cast<Snake>(gameobject)->Collide(std::move(food.get())))
+      {
+        std::promise<Food::State> prmFoodState;
+        std::future<Food::State> ftrFoodState = prmFoodState.get_future();
+        foodConsumptionFutures.push_back(std::move(ftrFoodState));
+        foodConsumptionThreads.push_back(std::thread(&Snake::Consume,
+          std::move(std::dynamic_pointer_cast<Snake>(gameobject).get()), food, std::move(prmFoodState)));
+      }
+    }
   }
 
-  // Check if there's food over here
-  if (snake->Collide(*food)) {
-    if (food->getState() != Food::State::kPoison) score++;
-    snake->setModeDuration(randomInt);
-    snake->Consume(food);
-    PlaceFood();
+  UpdateScore();
+
+}
+
+
+void Game::UpdateScore() {
+
+  for (auto& foodConsumptionFuture : foodConsumptionFutures) {
+    foodConsumptionQueue.send(std::move(foodConsumptionFuture.get()));
+  }
+
+  for (auto& thread : foodConsumptionThreads) thread.join();
+
+
+  if (foodConsumptionQueue.receive() != Food::State::kPoison) {
+       score++;
   }
 }
 
+
 int Game::GetScore() const { return score; }
-int Game::GetSize() const { return snake->size; }
+int Game::GetSize() const { return player->size; }

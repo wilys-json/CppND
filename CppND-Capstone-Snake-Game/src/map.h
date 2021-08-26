@@ -5,20 +5,34 @@
 #include <memory>
 #include <iostream>
 
-class GameObject;
-
-// Helper class with underlying vector implementation
-
-class Map : public std::enable_shared_from_this<Map> {
+// Helper class with underlying 2D vector implementation
+template <class T>
+class Map : public std::enable_shared_from_this<Map<T>> {
   public:
     Map(int Y, int X) :
       row(Y),
       col(X),
-      pointers(Y, std::vector<std::shared_ptr<GameObject>>(X)) {};
-    std::vector<std::shared_ptr<GameObject>>& operator[](int index) { return pointers[index]; }
-    std::vector<std::vector<std::shared_ptr<GameObject>>>::iterator begin() { return pointers.begin();}
-    std::vector<std::vector<std::shared_ptr<GameObject>>>::iterator end() { return pointers.end();}
+      pointers(Y, std::vector<std::shared_ptr<T>>(X)) {};
 
+    // Mimic the behavior of vector
+    std::vector<std::shared_ptr<T>>& operator[](const int& index) {
+      return pointers[index];
+    }
+    typename std::vector<std::vector<std::shared_ptr<T>>>::iterator begin() {
+      return pointers.begin();
+    }
+    typename std::vector<std::vector<std::shared_ptr<T>>>::iterator end() {
+      return pointers.end();
+    }
+    std::vector<std::shared_ptr<T>>& at(const int& rowIndex) {
+      return pointers[rowIndex];
+    }
+    std::shared_ptr<T>& at(const int& rowIndex, const int& colIndex) {
+      return pointers[rowIndex][colIndex];
+    }
+
+
+    // for debugging
     void print() {
       for (auto row : pointers) {
         for (auto pointer : row) {
@@ -33,6 +47,7 @@ class Map : public std::enable_shared_from_this<Map> {
       std::cout << "\n\n" << std::endl;
     };
 
+    // for updating during game loop
     void clear() {
       for (int i = 0; i < pointers.size(); ++i) {
         for (int j = 0; j < pointers[i].size(); ++j) {
@@ -40,12 +55,15 @@ class Map : public std::enable_shared_from_this<Map> {
         }
       }
     }
+
+    // destructor
     ~Map() {
       clear();
       pointers.clear();
     }
+
   private:
-    std::vector<std::vector<std::shared_ptr<GameObject>>> pointers;
+    std::vector<std::vector<std::shared_ptr<T>>> pointers;
     int row;
     int col;
 };

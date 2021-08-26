@@ -1,12 +1,5 @@
-#include <iostream>
-#include <string>
-#include <typeinfo>
-#include <vector>
 #include "renderer.h"
-#include "SwitchableColor.h"
-#include "snake.h"
-#include "food.h"
-#include "bullet.h"
+
 
 Renderer::Renderer(const std::size_t screen_width,
                    const std::size_t screen_height,
@@ -57,35 +50,34 @@ void Renderer::Render(std::vector<std::shared_ptr<GameObject>>& objectPool) {
 
   for (auto &gameobject : objectPool) {
 
-    if (*gameobject == gameClasses.FOOD) {
+    if (gameobject->isA<Food>()) {
       std::shared_ptr<Food> food = std::dynamic_pointer_cast<Food>(gameobject);
-      // Render food
-      switch(food->getColor()) {
-        case SwitchableColor::Color::kYellow:
-          SDL_SetRenderDrawColor(sdl_renderer, 0xFF, 0xCC, 0x00, 0xFF);
-          break;
-        case SwitchableColor::Color::kWhite:
-          SDL_SetRenderDrawColor(sdl_renderer, 0xFF, 0xFF, 0xFF, 0xFF);
-          break;
-        case SwitchableColor::Color::kPurple:
-          SDL_SetRenderDrawColor(sdl_renderer, 0x99, 0x00, 0xFF, 0xFF);
-          break;
-        case SwitchableColor::Color::kRed:
-          SDL_SetRenderDrawColor(sdl_renderer, 0xFF, 0x00, 0x00, 0xFF);
-          break;
-        case SwitchableColor::Color::kGreen:
-          SDL_SetRenderDrawColor(sdl_renderer, 0x99, 0xFF, 0x99, 0xFF);
-          break;
-      }
+      SetRenderDrawColor(food->getColor());
       block.x = food->origin_x * block.w;
       block.y = food->origin_y * block.h;
       SDL_RenderFillRect(sdl_renderer, &block);
+      continue;
     }
 
-    if (*gameobject == gameClasses.SNAKE) {
+    if (gameobject->isA<Snake>()) {
         std::shared_ptr<Snake> snake = std::dynamic_pointer_cast<Snake>(gameobject);
+        if (snake->isA<PlayerSnake>()) {
+          std::vector<std::shared_ptr<Bullet>> bullets = std::dynamic_pointer_cast<PlayerSnake>(snake)->bullets;
+          if (!bullets.empty()) {
+            for (auto &bullet : bullets) {
+              if (bullet.get()!=nullptr) {
+              block.x = static_cast<int>(bullet->origin_x) * block.w;
+              block.y = static_cast<int>(bullet->origin_y) * block.h;
+              SetRenderDrawColor(bullet->getColor());
+              SDL_RenderFillRect(sdl_renderer, &block);
+              }
+            }
+          }
+        }
+        // Snake::State snakeState = snake->getState();
+
         // Render snake's body
-        SDL_SetRenderDrawColor(sdl_renderer, 0xFF, 0xFF, 0xFF, 0xFF);
+        SetRenderDrawColor(snake->getDefaultBodyColor());
         for (SDL_Point const &point : snake->body) {
           block.x = point.x * block.w;
           block.y = point.y * block.h;
@@ -96,45 +88,16 @@ void Renderer::Render(std::vector<std::shared_ptr<GameObject>>& objectPool) {
         block.x = static_cast<int>(snake->origin_x) * block.w;
         block.y = static_cast<int>(snake->origin_y) * block.h;
         if (snake->alive) {
-          switch(snake->getState()) {
-            case Snake::State::kNormal:
-              SDL_SetRenderDrawColor(sdl_renderer, 0x00, 0x7A, 0xCC, 0xFF);
-              break;
-            case Snake::State::kShooter:
-              SDL_SetRenderDrawColor(sdl_renderer, 0xFF, 0xCC, 0x00, 0xFF);
-              break;
-            case Snake::State::kPoisoned:
-              SDL_SetRenderDrawColor(sdl_renderer, 0x99, 0x00, 0xFF, 0xFF);
-              break;
-            case Snake::State::kSpeeding:
-              SDL_SetRenderDrawColor(sdl_renderer, 0x99, 0xFF, 0x99, 0xFF);
-              break;
-            }
+          SetRenderDrawColor(std::move(snake));
         } else {
-              SDL_SetRenderDrawColor(sdl_renderer, 0xFF, 0x00, 0x00, 0xFF);
-          }
+          SDL_SetRenderDrawColor(sdl_renderer, 0xFF, 0x00, 0x00, 0xFF);
+        }
 
         SDL_RenderFillRect(sdl_renderer, &block);
 
         // Render bullet & bullet body
 
-        if (!snake->bullets.empty()) {
-          for (auto &bullet : snake->bullets) {
-            if (bullet.get()!=nullptr) {
-            block.x = static_cast<int>(bullet->origin_x) * block.w;
-            block.y = static_cast<int>(bullet->origin_y) * block.h;
-            switch(bullet->getColor()) {
-              case SwitchableColor::Color::kYellow:
-                SDL_SetRenderDrawColor(sdl_renderer, 0xFF, 0xCC, 0x00, 0xFF);
-                break;
-              case SwitchableColor::Color::kRed:
-                SDL_SetRenderDrawColor(sdl_renderer, 0xFF, 0x00, 0x00, 0xFF);
-                break;
-              }
-            SDL_RenderFillRect(sdl_renderer, &block);
-            }
-          }
-        }
+      continue;
     }
 
   }
@@ -204,4 +167,46 @@ void Renderer::Render(std::vector<std::shared_ptr<GameObject>>& objectPool) {
 void Renderer::UpdateWindowTitle(int score, int fps) {
   std::string title{"Snake Score: " + std::to_string(score) + " FPS: " + std::to_string(fps)};
   SDL_SetWindowTitle(sdl_window, title.c_str());
+}
+
+void Renderer::SetRenderDrawColor(const Color color) {
+  switch(color) {
+    case Color::kYellow:
+      SDL_SetRenderDrawColor(sdl_renderer, 0xFF, 0xCC, 0x00, 0xFF);
+      break;
+    case Color::kWhite:
+      SDL_SetRenderDrawColor(sdl_renderer, 0xFF, 0xFF, 0xFF, 0xFF);
+      break;
+    case Color::kPurple:
+      SDL_SetRenderDrawColor(sdl_renderer, 0x99, 0x00, 0xFF, 0xFF);
+      break;
+    case Color::kRed:
+      SDL_SetRenderDrawColor(sdl_renderer, 0xFF, 0x00, 0x00, 0xFF);
+      break;
+    case Color::kGreen:
+      SDL_SetRenderDrawColor(sdl_renderer, 0x99, 0xFF, 0x99, 0xFF);
+      break;
+    case Color::kBlue:
+      SDL_SetRenderDrawColor(sdl_renderer, 0x04, 0x65, 0xFA, 0xFF);
+      break;
+    case Color::kGrey:
+      SDL_SetRenderDrawColor(sdl_renderer, 0x5A, 0x5A, 0x5A, 0xFF);
+  }
+}
+
+void Renderer::SetRenderDrawColor(std::shared_ptr<Snake> snake) {
+  switch(snake->getState()) {
+    case Snake::State::kNormal:
+      SetRenderDrawColor(snake->getDefaultHeadColor());
+      break;
+    case Snake::State::kShooter:
+      SDL_SetRenderDrawColor(sdl_renderer, 0xFF, 0xCC, 0x00, 0xFF);
+      break;
+    case Snake::State::kPoisoned:
+      SDL_SetRenderDrawColor(sdl_renderer, 0x99, 0x00, 0xFF, 0xFF);
+      break;
+    case Snake::State::kSpeeding:
+      SDL_SetRenderDrawColor(sdl_renderer, 0x99, 0xFF, 0x99, 0xFF);
+      break;
+    }
 }

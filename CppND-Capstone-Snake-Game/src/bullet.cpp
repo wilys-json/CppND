@@ -1,6 +1,4 @@
-#include <vector>
 #include "bullet.h"
-#include <iostream>
 
 Bullet::~Bullet() {
   map = nullptr;
@@ -71,18 +69,20 @@ void Bullet::Blink() {
   color = (color == Color::kRed) ? Color::kYellow : Color::kRed;
 }
 
-bool Bullet::Collide(const GameObject &other) {
+bool Bullet::Collide(const GameObject* other) {
+
+  if (this == other) return false;
 
   int this_x = static_cast<int>(origin_x);
   int this_y = static_cast<int>(origin_y);
 
   // Check if head touches head
-  if (static_cast<int>(other.origin_x) == this_x
-    && static_cast<int>(other.origin_y) == this_y)
+  if (static_cast<int>(other->origin_x) == this_x
+    && static_cast<int>(other->origin_y) == this_y)
     return true;
 
   // Check if bullet's head hit other's body
-  for (const auto &other_part : other.body) {
+  for (const auto &other_part : other->body) {
     if (other_part.x == this_x && other_part.y == this_y) return true;
   }
 

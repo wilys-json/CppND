@@ -3,10 +3,13 @@
 
 #include <vector>
 #include <memory>
+#include <iostream>
+#include <string>
 #include "SDL.h"
-#include "gameclasses.h"
 #include "food.h"
-#include "snake.h"
+#include "player.h"
+#include "SwitchableColor.h"
+#include "bullet.h"
 
 
 class Renderer {
@@ -16,10 +19,11 @@ class Renderer {
   ~Renderer();
 
   void Render(std::vector<std::shared_ptr<GameObject>>& objectPool);
+  void SetRenderDrawColor(const Color color);
+  void SetRenderDrawColor(std::shared_ptr<Snake> snake);
   void UpdateWindowTitle(int score, int fps);
 
  private:
-  GameClasses gameClasses;
   SDL_Window *sdl_window;
   SDL_Renderer *sdl_renderer;
 

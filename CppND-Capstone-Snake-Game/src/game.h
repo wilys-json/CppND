@@ -3,17 +3,31 @@
 
 #include <random>
 #include <thread>
+#include <deque>
+#include <condition_variable>
+#include <future>
 #include <memory>
 #include <vector>
 #include "SDL.h"
-#include "gameclasses.h"
+#include "map.h"
+#include "food.h"
+#include "player.h"
+#include "controller.h"
+#include "renderer.h"
 
-class Food;
-class Snake;
-class Controller;
-class Renderer;
-class GameObject;
-class Map;
+template <class T>
+class MessageQueue
+{
+public:
+    void send(T&& msg);
+    T receive();
+
+private:
+    std::deque<T> _queue;
+    std::condition_variable _condition;
+    std::mutex _mutex;
+};
+
 
 class Game : public std::enable_shared_from_this<Game>{
  public:
@@ -25,20 +39,24 @@ class Game : public std::enable_shared_from_this<Game>{
   int GetSize() const;
 
   // Owns the map
-  std::shared_ptr<Map> map;
+  std::shared_ptr<Map<GameObject>> map;
 
  private:
-  GameClasses gameClasses;
   std::vector<std::shared_ptr<GameObject>> objectPool;
-  std::shared_ptr<Snake> snake;  // owns Snake
+  std::shared_ptr<PlayerSnake> player;  // owns Snake
+  std::shared_ptr<Food> food;
   std::random_device dev;
   std::mt19937 engine;
   std::uniform_int_distribution<int> random_w;
   std::uniform_int_distribution<int> random_h;
+  MessageQueue<Food::State> foodConsumptionQueue;
+  std::vector<std::thread> foodConsumptionThreads;
+  std::vector<std::future<Food::State>> foodConsumptionFutures;
   int score{0};
 
   void PlaceFood();
   void Update();
+  void UpdateScore();
   void clearMap() { map->clear(); } ;
 };
 

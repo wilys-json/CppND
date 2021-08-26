@@ -12,10 +12,11 @@ class Food : public GameObject, public SwitchableColor{
     enum class State { kNormal, kSuper, kSpeedup, kPoison };
     Food() {};
     ~Food() {};
-    Food(int grid_width, int grid_height, std::shared_ptr<Map> gameMap) :
+    Food(int grid_width, int grid_height, std::shared_ptr<Map<GameObject>> gameMap) :
       GameObject(grid_width, grid_height, gameMap),
       SwitchableColor() {};
     void Initialize() override;
+    void Initialize(const int& score, const int& x, const int& y);
     void Update() override;
     void setState(State new_state) { state = new_state; };
     State getState() const { return state; };

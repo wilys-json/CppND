@@ -14,7 +14,7 @@ find_package(SDL2 REQUIRED)
 find_package(Threads REQUIRED)
 include_directories(${SDL2_INCLUDE_DIRS} src)
 
-add_executable(SnakeGame src/main.cpp src/game.cpp src/controller.cpp src/renderer.cpp src/snake.cpp src/GameObject.h src/Movables.h src/food.cpp src/bullet.cpp src/SwitchableColor.h)
+add_executable(SnakeGame src/main.cpp src/game.cpp src/controller.cpp src/renderer.cpp src/snake.cpp src/player.cpp src/rival.cpp src/GameObject.h src/Movables.h src/food.cpp src/bullet.cpp src/SwitchableColor.h)
 string(STRIP ${SDL2_LIBRARIES} SDL2_LIBRARIES)
 target_link_libraries(SnakeGame ${SDL2_LIBRARIES})
 target_link_libraries(SnakeGame ${CMAKE_THREAD_LIBS_INIT})
