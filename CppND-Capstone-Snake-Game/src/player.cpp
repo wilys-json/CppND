@@ -50,7 +50,7 @@ void PlayerSnake::Update() {
 
 
 void PlayerSnake::Digest() {
-  std::lock_guard<std::mutex> Lock(_mtx);
+  std::lock_guard<std::mutex> Lock(_mutex);
   switch(foodConsumed->getState()) {
     case Food::State::kNormal:
       speed += 0.02;

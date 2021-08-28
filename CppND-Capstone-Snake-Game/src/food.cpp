@@ -9,12 +9,17 @@ void Food::Initialize() {
 
 void Food::Initialize(const int& score, const int& x, const int& y) {
   Initialize();
-  if (score > 0 && score % 5 == 0) setState(Food::State::kSuper);
+  if (score > 0 && score % 5 == 0) {
+    setState(Food::State::kSuper);
+    return;
+  }
   if (x % 5 == 0 && y % 5 != 0) {
     setState(Food::State::kPoison);
+    return;
   }
   if (x % 5 == 0 && y % 5 == 0) {
     setState(Food::State::kSpeedup);
+    return;
   }
 }
 

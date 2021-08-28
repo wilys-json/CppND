@@ -1,14 +1,5 @@
 #include "snake.h"
 
-// const SwitchableColor::Color Snake::DefaultHeadColor = SwitchableColor::Color::kBlue;
-// const SwitchableColor::Color Snake::DefaultBodyColor = SwitchableColor::Color::kWhite;
-
-// Snake::~Snake() {
-//   map = nullptr;
-//   for (auto& bullet : bullets) bullet = nullptr;
-//   for (auto& thread : threads) thread.join();
-// }
-
 
 void Snake::Initialize() {
   if (!initialized) {
@@ -16,26 +7,6 @@ void Snake::Initialize() {
     initialized = true;
   }
 };
-
-
-// void Snake::Update() {
-//   // Capture previous head before updating
-//   SDL_Point prev_cell{
-//       static_cast<int>(origin_x),
-//       static_cast<int>(
-//           origin_y)};
-//   UpdateHead();
-//   UpdateBullets();
-//   // Capture new head after updating
-//   SDL_Point current_cell{
-//       static_cast<int>(origin_x),
-//       static_cast<int>(origin_y)};
-//
-//   // Update body if snake has moved to a new cell
-//   if (current_cell.x != prev_cell.x || current_cell.y != prev_cell.y) {
-//     UpdateBody(current_cell, prev_cell);
-//   }
-// }
 
 
 bool Snake::Collide(const GameObject* other) {
@@ -91,18 +62,6 @@ void Snake::UpdateHead() {
 }
 
 
-// void Snake::UpdateBullets() {
-//   if (!bullets.empty()) {
-//     for (int i; i < bullets.size(); ++i) {
-//       if (bullets[i] != nullptr) {
-//         bullets[i]->Update();
-//         if (bullets[i]->offGrid()) bullets[i] = nullptr;
-//       }
-//     }
-//   }
-// }
-
-
 void Snake::UpdateBody(SDL_Point &current_head_cell,
                        SDL_Point &prev_head_cell) {
   // Add previous head location to vector
@@ -136,15 +95,14 @@ void Snake::setRandomInt(const int& randomNumber) {
 
 
 void Snake::Consume(std::shared_ptr<Food> food,
-                    std::promise<Food::State> prmFoodState) {
+                    std::promise<std::shared_ptr<Snake>> prmFoodConsumption) {
   if (food->getState() != Food::State::kPoison) GrowBody();
   foodConsumed = food;
   // Ensure the snake enters one state at a time
   if (state == State::kNormal) {
     threads.emplace_back(std::thread(&Snake::Digest, this));
   }
-
-  prmFoodState.set_value(std::move(foodConsumed->getState()));
+  prmFoodConsumption.set_value(std::dynamic_pointer_cast<Snake>(shared_from_this()));
 }
 
 

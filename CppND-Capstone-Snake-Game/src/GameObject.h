@@ -18,6 +18,7 @@ class Bullet;
 class RivalSnake;
 class PlayerSnake;
 
+
 // Base (abstract) class for game objects
 class GameObject : public std::enable_shared_from_this<GameObject> {
   public:
@@ -29,8 +30,7 @@ class GameObject : public std::enable_shared_from_this<GameObject> {
      grid_width(grid_width),
      grid_height(grid_height),
      origin_x(grid_width / 2),
-     origin_y(grid_height / 2),
-     _mtx() { setMap(std::move(gameMap)); }
+     origin_y(grid_height / 2) { setMap(std::move(gameMap)); }
 
     // Attributes
     float origin_x;
@@ -77,15 +77,19 @@ class GameObject : public std::enable_shared_from_this<GameObject> {
 
     // Check if object has fallen out of boundary
     bool offGrid() {
-      if (origin_x <= 0 || origin_x >= grid_width
-       || origin_y <= 0 || origin_y >= grid_height) {
+      if (origin_x < 0 || origin_x > grid_width
+       || origin_y < 0 || origin_y > grid_height) {
          return true;
       }
       return false;
     }
 
+    bool offGrid(const int& x, const int& y) {
+      if (x <= 0 || x >= grid_width || y <= 0 || y >= grid_height) return true;
+      return false;
+    }
+
   protected:
-    mutable std::mutex _mtx;
     int grid_width;
     int grid_height;
     std::shared_ptr<Map<GameObject>> map;

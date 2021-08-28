@@ -9,6 +9,7 @@
 template <class T>
 class Map : public std::enable_shared_from_this<Map<T>> {
   public:
+    Map() {};
     Map(int Y, int X) :
       row(Y),
       col(X),

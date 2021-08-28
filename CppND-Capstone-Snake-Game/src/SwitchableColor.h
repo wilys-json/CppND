@@ -4,8 +4,8 @@
 enum class Color { kRed, kYellow, kGreen, kBlue, kPurple, kWhite, kGrey};
 
 namespace DefaultColors {
-  static const Color RivalHeadColor{Color::kGrey};
-  static const Color RivalBodyColor{Color::kRed};
+  static const Color RivalHeadColor{Color::kRed};
+  static const Color RivalBodyColor{Color::kGrey};
   static const Color PlayerHeadColor{Color::kBlue};
   static const Color PlayerBodyColor{Color::kWhite};
 };

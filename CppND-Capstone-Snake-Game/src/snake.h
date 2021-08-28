@@ -4,6 +4,8 @@
 #include <chrono>
 #include <cmath>
 #include <future>
+#include <utility>
+#include <memory>
 #include "Movables.h"
 #include "SwitchableColor.h"
 #include "SDL.h"
@@ -41,7 +43,7 @@ class Snake : public Movables, public GameObject {
   void GrowBody();
   // void Shoot();
   void Consume(std::shared_ptr<Food> food,
-               std::promise<Food::State> prmFoodState);
+               std::promise<std::shared_ptr<Snake>> prmFoodConsumption);
 
   // Attributes & Containers
   int size{1};
@@ -50,6 +52,7 @@ class Snake : public Movables, public GameObject {
 
   // Getters
   State& getState() { return state; };
+  std::shared_ptr<Food> getFood() { return foodConsumed; };
   virtual const Color getDefaultHeadColor() = 0;
   virtual const Color getDefaultBodyColor() = 0;
 
@@ -67,6 +70,7 @@ class Snake : public Movables, public GameObject {
   bool growing{false};
   int RandomInt{0};
   std::shared_ptr<Food> foodConsumed;
+  std::mutex _mutex;
 
 };
 

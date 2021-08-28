@@ -1,6 +1,7 @@
 #include <future>
 #include "game.h"
 #include "snake.h"
+#include "rival.h"
 
 
 template <typename T>
@@ -25,15 +26,20 @@ void MessageQueue<T>::send(T&& msg)
 Game::Game(std::size_t grid_width, std::size_t grid_height)
     : engine(dev()),
       random_w(0, static_cast<int>(grid_width - 1)),
-      random_h(0, static_cast<int>(grid_height - 1)) { Initialize(grid_width, grid_height); }
+      random_h(0, static_cast<int>(grid_height - 1)),
+      grid_width(grid_width),
+      grid_height(grid_height) { Initialize(); }
 
-void Game::Initialize(std::size_t grid_width, std::size_t grid_height) {
+void Game::Initialize() {
   map = std::make_shared<Map<GameObject>>(grid_height, grid_width);
   player = std::make_shared<PlayerSnake>(grid_width, grid_height, map);
   player->Initialize();
   objectPool.push_back(player);
   // objectPool.push_back(std::make_shared<Food>()); // push back dummy food first
   PlaceFood();
+  std::shared_ptr<RivalSnake> rival = std::make_shared<RivalSnake>(grid_width, grid_height, map);
+  rival->Initialize();
+  objectPool.push_back(rival);
 }
 
 void Game::Run(Controller const &controller, Renderer &renderer,
@@ -99,7 +105,7 @@ void Game::PlaceFood() {
 
    // Initialize Food
    food = std::make_shared<Food>(x, y, map);
-   food->Initialize();
+   food->Initialize(0, x, y);
    objectPool.push_back(food);
    return;
  }
@@ -111,6 +117,9 @@ void Game::Update() {
 
   // std::shared_ptr<Snake> eater;
   int randomInt = random_w(engine);
+  std::thread foodConsumptionThread;
+  std::promise<std::shared_ptr<Snake>> prmFoodConsumption;
+  std::future<std::shared_ptr<Snake>> ftrFoodConsumption = prmFoodConsumption.get_future();
 
   clearMap();
   for (auto& gameobject : objectPool) {
@@ -120,40 +129,31 @@ void Game::Update() {
       snake->setRandomInt(randomInt);
       if (snake->Collide(std::move(food.get())))
       {
-        std::promise<Food::State> prmFoodState;
-        // std::future<Food::State> ftrFoodState = prmFoodState.get_future();
-        // foodConsumptionPromises.push_back(prmFoodState)
-        foodConsumptionThreads.push_back(std::thread(&Snake::Consume,
-          snake, food, std::move(prmFoodState)));
+        foodConsumptionThread = std::thread(&Snake::Consume, snake, food,
+          std::move(prmFoodConsumption));
       }
     }
   }
 
-  UpdateScore();
-
-
+  if (foodConsumptionThread.joinable()) {
+    foodConsumptionThread.join();
+    foodConsumptionQueue.send(std::move(ftrFoodConsumption.get()));
+    UpdateScore();
+  }
 
 }
 
 
 void Game::UpdateScore() {
-  if (!foodConsumptionFutures.empty()) {
-    for (auto& foodConsumptionFuture : foodConsumptionFutures) {
-      foodConsumptionFuture.wait();
-      std::cout << "future wait finish" << std::endl;
-      foodConsumptionQueue.send(std::move(foodConsumptionFuture.get()));
-      std::cout << "future sent to msg queue" << std::endl;
-    }
 
-    for (auto& thread : foodConsumptionThreads) thread.join();
-
-
-    if (foodConsumptionQueue.receive() != Food::State::kPoison) {
+    auto foodConsumer = foodConsumptionQueue.receive();
+    if (foodConsumer->isA<PlayerSnake>()) {
+        if (foodConsumer->getFood()->getState() != Food::State::kPoison)
          score++;
-         PlaceFood();
     }
-  }
+    PlaceFood();
 }
+
 
 
 int Game::GetScore() const { return score; }
