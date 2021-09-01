@@ -13,6 +13,7 @@ public:
   ~RivalSnake();
 
   void Move();
+  void Shrink();
   void Update() override;
   void Initialize() override;
   const Color getDefaultBodyColor() override;

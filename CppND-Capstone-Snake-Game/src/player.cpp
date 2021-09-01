@@ -48,6 +48,31 @@ void PlayerSnake::Update() {
 
 }
 
+bool PlayerSnake::Collide(const GameObject* other) {
+  if (other == this) return false;
+
+  int this_x = static_cast<int>(origin_x);
+  int this_y = static_cast<int>(origin_y);
+
+  // Check if head touches head
+  if (static_cast<int>(other->origin_x) == this_x
+    && static_cast<int>(other->origin_y) == this_y)
+    return true;
+
+  // Check if snake's head hit other's body
+  for (const auto &other_part : other->body) {
+    if (other_part.x == this_x && other_part.y == this_y) return true;
+  }
+
+  // for (const auto &bullet : bullets) {
+  //   if (bullet->offGrid()) continue;
+  //   if (bullet->Collide(other)) return true;
+  // }
+
+  return false;
+
+}
+
 
 void PlayerSnake::Digest() {
   std::lock_guard<std::mutex> Lock(_mutex);

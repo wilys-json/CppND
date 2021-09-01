@@ -29,16 +29,16 @@ bool RivalSnake::Sense() {
       int sensor_x = static_cast<int>(origin_x) + j - SensingRange;
       int sensor_y = static_cast<int>(origin_y) + i - SensingRange;
       if (offGrid(sensor_x, sensor_y)) continue;
-        if(map->at(sensor_y, sensor_x)->isA<Food>()) {
-          mode = Mode::kBattle;
-          Aim(sensor_x, sensor_y);
-          sensed = true;
-        }
-        if(map->at(sensor_y, sensor_x)->isA<PlayerSnake>()) {
-          mode = ((std::dynamic_pointer_cast<Snake>(map->at(sensor_y, sensor_x))->getState() == Snake::State::kPoisoned) ? Mode::kBattle : Mode::kEscape);
-          Aim(sensor_x, sensor_y);
-          sensed = true;
-        }
+      if(map->at(sensor_y, sensor_x)->isA<Food>()) {
+        mode = Mode::kBattle;
+        Aim(sensor_x, sensor_y);
+        sensed = true;
+      }
+      if(map->at(sensor_y, sensor_x)->isA<PlayerSnake>()) {
+        mode = ((std::dynamic_pointer_cast<Snake>(map->at(sensor_y, sensor_x))->getState() == Snake::State::kPoisoned) ? Mode::kBattle : Mode::kEscape);
+        Aim(sensor_x, sensor_y);
+        sensed = true;
+      }
     }
   }
   return sensed;
@@ -72,6 +72,15 @@ void RivalSnake::Aim(const int& sensor_x, const int& sensor_y) {
 
 void RivalSnake::Move() {
   if(!Sense()) threads.emplace_back(std::thread(&RivalSnake::RandomWalk, this));
+}
+
+
+void RivalSnake::Shrink() {
+  if (!body.empty()) {
+    body.erase(body.begin());
+    size--;
+    SensingRange -= 2;
+  }
 }
 
 void RivalSnake::RandomWalk() {

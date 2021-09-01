@@ -55,7 +55,8 @@ class Game : public std::enable_shared_from_this<Game>{
   std::vector<std::thread> foodConsumptionThreads;
   int score{0};
 
-  void PlaceFood();
+  template <class T>
+  void Place();
   void Update();
   void UpdateScore();
   void clearMap() { map->clear(); } ;

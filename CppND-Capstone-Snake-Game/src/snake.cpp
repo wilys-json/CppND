@@ -25,11 +25,11 @@ bool Snake::Collide(const GameObject* other) {
     if (other_part.x == this_x && other_part.y == this_y) return true;
   }
 
-  // Check if snake's body is hit by other's head
-  for (const auto &this_part : body) {
-    if (this_part.x == static_cast<int>(other->origin_x)
-    && this_part.y == static_cast<int>(other->origin_y)) return true;
-  }
+  // // Check if snake's body is hit by other's head
+  // for (const auto &this_part : body) {
+  //   if (this_part.x == static_cast<int>(other->origin_x)
+  //   && this_part.y == static_cast<int>(other->origin_y)) return true;
+  // }
 
   return false;
 

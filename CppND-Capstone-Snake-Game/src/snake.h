@@ -11,7 +11,6 @@
 #include "SDL.h"
 #include "food.h"
 
-class Bullet;
 
 class Snake : public Movables, public GameObject {
  public:
@@ -48,7 +47,6 @@ class Snake : public Movables, public GameObject {
   // Attributes & Containers
   int size{1};
   bool alive{true};
-  std::vector<std::shared_ptr<Bullet>> bullets;
 
   // Getters
   State& getState() { return state; };
