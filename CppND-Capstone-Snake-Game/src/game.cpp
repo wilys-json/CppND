@@ -36,12 +36,8 @@ void Game::Initialize() {
   player = std::make_shared<PlayerSnake>(grid_width, grid_height, map);
   player->Initialize();
   objectPool.push_back(player);
-  // objectPool.push_back(std::make_shared<Food>()); // push back dummy food first
   Place<Food>();
   Place<RivalSnake>();
-  // std::shared_ptr<RivalSnake> rival = std::make_shared<RivalSnake>(grid_width, grid_height, map);
-  // rival->Initialize();
-  // objectPool.push_back(rival);
 }
 
 void Game::Run(Controller const &controller, Renderer &renderer,
@@ -99,14 +95,17 @@ void Game::Place() {
     // Reassign the Food pointer pointing to new Food
     for (auto &gameobject : objectPool) {
       if (gameobject->isA<T>()) {
-        gameobject.reset(new T(x, y, map));
         if constexpr(std::is_same_v<T, Food>) {
+          gameobject.reset(new T(x, y, map));
           food = std::dynamic_pointer_cast<Food>(gameobject);
           food->Initialize(score, x, y);
           return;
         }
-        std::cout << "place new rival" << std::endl;
-        gameobject->Initialize();
+        int obj_x = static_cast<int>(gameobject->origin_x);
+        int obj_y = static_cast<int>(gameobject->origin_y);
+        (*map)[obj_y][obj_x] = nullptr;
+        gameobject.reset(new T(grid_width, grid_height, map));
+        std::dynamic_pointer_cast<T>(gameobject)->Initialize(score, x, y);
         return;
      }
    }
@@ -118,7 +117,7 @@ void Game::Place() {
      objectPool.push_back(food);
    } else {
      std::shared_ptr<T> gameobject = std::make_shared<T>(grid_width, grid_height, map);
-     gameobject->Initialize();
+     std::dynamic_pointer_cast<T>(gameobject)->Initialize();
      objectPool.push_back(gameobject);
    }
    return;
@@ -162,9 +161,13 @@ void Game::Update() {
   if (rival != nullptr) {
     if (player->Collide(std::move(rival.get()))) {
       if (rival->size > 1) rival->Shrink();
-      else if (rival->size == 1) Place<RivalSnake>();
+      else if (rival->size == 1) {
+          rival->alive = false;
+          Place<RivalSnake>();
+      }
+      return;
     }
-    else if (rival->Collide(std::move(player.get()))
+    if (rival->Collide(std::move(player.get()))
             && rival->size > 1) {
         player->alive = false;
         return;
@@ -174,6 +177,7 @@ void Game::Update() {
         if (bullet == nullptr) continue;
         if (bullet->Collide(std::move(rival.get()))) rival->Shrink();
       }
+      return;
     }
   }
 }

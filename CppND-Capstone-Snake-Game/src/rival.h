@@ -16,6 +16,7 @@ public:
   void Shrink();
   void Update() override;
   void Initialize() override;
+  void Initialize(const int& score, const int&x, const int& y);
   const Color getDefaultBodyColor() override;
   const Color getDefaultHeadColor() override;
 
@@ -23,11 +24,10 @@ private:
   enum class Mode { kBattle, kEscape, kAttack };
   Mode mode{Mode::kBattle};
   int SensingRange;
-  // std::unique_ptr<Map<GameObject>> sensorMap{};
   std::mutex _walkMutex;
   void Digest() override;
   void RandomWalk();
-  // void InitializeSensorMap();
+  void EnhanceSense(int i);
   bool Sense();
   void Aim(const int& sensor_x, const int& sensor_y);
 };

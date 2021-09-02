@@ -19,6 +19,17 @@ void RivalSnake::Initialize() {
   }
 };
 
+void RivalSnake::Initialize(const int& score, const int& x, const int& y) {
+    origin_x = x;
+    origin_y = y;
+    speed += (static_cast<float>(score) / 100.0);
+    EnhanceSense((2+(score/10))*2);
+    if (!initialized) {
+      projectToMap();
+      initialized = true;
+    }
+};
+
 
 bool RivalSnake::Sense() {
   bool sensed = false;
@@ -76,11 +87,16 @@ void RivalSnake::Move() {
 
 
 void RivalSnake::Shrink() {
-  if (!body.empty()) {
+  if (size > 1 && !body.empty()) {
     body.erase(body.begin());
     size--;
     SensingRange -= 2;
   }
+}
+
+void RivalSnake::EnhanceSense(int i=2) {
+    SensingRange = (((SensingRange + i) * 2 + 1 >= grid_width) ?
+                    grid_width : SensingRange + i);
 }
 
 void RivalSnake::RandomWalk() {
@@ -137,7 +153,7 @@ void RivalSnake::Digest() {
   switch(foodConsumed->getState()) {
     case Food::State::kNormal:
       speed += 0.02;
-      SensingRange += 2;
+      EnhanceSense();
       std::cout << "Huh oh! The rival snake has eaten the food." << std::endl;
       break;
     case Food::State::kSuper:
@@ -147,12 +163,12 @@ void RivalSnake::Digest() {
       std::cout << RandomInt+(size / 5) << " seconds." << std::endl;
       state = State::kPoisoned;
       speed /= 2;
-      SensingRange -= 2;
+      EnhanceSense(-2);
       std::this_thread::sleep_for(std::chrono::seconds(RandomInt+(size / 5)));
       if (alive) {
         state = State::kNormal;
         speed *= 2;
-        SensingRange += 2;
+        EnhanceSense();
         std::cout << "Rival snake resumes normal." << std::endl;
       }
       break;
@@ -161,12 +177,12 @@ void RivalSnake::Digest() {
       std::cout << RandomInt+(size / 5) << " seconds." << std::endl;
       state = State::kSpeeding;
       speed *= 2;
-      SensingRange += 4;
+      EnhanceSense(4);
       std::this_thread::sleep_for(std::chrono::seconds(RandomInt+(size / 5)));
       if (alive) {
         state = State::kNormal;
         speed /= 2;
-        SensingRange -= 2;
+        EnhanceSense(-2);
         std::cout << "Rival snake resumes normal." << std::endl;
       }
       break;
