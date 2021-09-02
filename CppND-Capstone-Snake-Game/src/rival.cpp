@@ -120,6 +120,7 @@ void RivalSnake::RandomWalk() {
 }
 
 void RivalSnake::Update() {
+  if(alive) {
   // InitializeSensorMap();
   // Capture previous head before updating
   SDL_Point prev_cell{
@@ -137,7 +138,8 @@ void RivalSnake::Update() {
   // Update body if snake has moved to a new cell
   if (current_cell.x != prev_cell.x || current_cell.y != prev_cell.y) {
     UpdateBody(current_cell, prev_cell);
-  }
+        }
+   }
 }
 
 const Color RivalSnake::getDefaultHeadColor() {
