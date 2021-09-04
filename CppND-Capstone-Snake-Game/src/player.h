@@ -12,6 +12,7 @@ public:
   ~PlayerSnake();
 
   void Update() override;
+  void Shrink() override;
   bool Collide(const GameObject* other) override;
   const Color getDefaultBodyColor() override;
   const Color getDefaultHeadColor() override;

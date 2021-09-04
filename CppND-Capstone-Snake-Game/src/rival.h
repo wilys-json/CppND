@@ -1,5 +1,6 @@
 #ifndef RIVAL_H
 #define RIVAL_H
+#include <thread>
 #include "snake.h"
 #include "map.h"
 
@@ -12,8 +13,7 @@ public:
         SensingRange(3) {};
   ~RivalSnake();
 
-  void Move();
-  void Shrink();
+  void Shrink() override;
   void Update() override;
   void Initialize() override;
   void Initialize(const int& score, const int&x, const int& y);
@@ -25,10 +25,12 @@ private:
   Mode mode{Mode::kBattle};
   int SensingRange;
   std::mutex _walkMutex;
+  std::thread walkThread;
+  std::condition_variable walkConditionVariable;
   void Digest() override;
   void RandomWalk();
   void EnhanceSense(int i);
-  bool Sense();
+  void Sense();
   void Aim(const int& sensor_x, const int& sensor_y);
 };
 

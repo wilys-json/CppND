@@ -7,6 +7,8 @@
 
 RivalSnake::~RivalSnake() {
   map = nullptr;
+  walkThread.detach();
+  for(auto& thread : threads) thread.detach();
 }
 
 void RivalSnake::Initialize() {
@@ -16,22 +18,23 @@ void RivalSnake::Initialize() {
     projectToMap();
     initialized = true;
   }
+  walkThread = std::thread(&RivalSnake::RandomWalk, this);
 };
 
 void RivalSnake::Initialize(const int& score, const int& x, const int& y) {
     origin_x = x;
     origin_y = y;
-    speed += (static_cast<float>(score) / 100.0);
+    speed += (static_cast<float>(score) * 0.01);
     EnhanceSense((2+(score/10))*2);
     if (!initialized) {
       projectToMap();
       initialized = true;
     }
+    walkThread = std::thread(&RivalSnake::RandomWalk, this);
 };
 
 
-bool RivalSnake::Sense() {
-  bool sensed = false;
+void RivalSnake::Sense() {
   int sensorMapSize = (SensingRange * 2)+1;
   for(int i = 0; i < sensorMapSize; ++i) {
     for(int j = 0; j < sensorMapSize; ++j) {
@@ -42,16 +45,13 @@ bool RivalSnake::Sense() {
       if(map->at(sensor_y, sensor_x)->isA<Food>()) {
         mode = Mode::kBattle;
         Aim(sensor_x, sensor_y);
-        sensed = true;
       }
       if(map->at(sensor_y, sensor_x)->isA<PlayerSnake>()) {
         mode = ((std::dynamic_pointer_cast<Snake>(map->at(sensor_y, sensor_x))->getState() == Snake::State::kPoisoned) ? Mode::kBattle : Mode::kEscape);
         Aim(sensor_x, sensor_y);
-        sensed = true;
       }
     }
   }
-  return sensed;
 }
 
 
@@ -80,18 +80,13 @@ void RivalSnake::Aim(const int& sensor_x, const int& sensor_y) {
    }
 }
 
-void RivalSnake::Move() {
-  if(!Sense())
-  if(threads.empty()) threads.emplace_back(std::thread(&RivalSnake::RandomWalk, this));
-}
-
 
 void RivalSnake::Shrink() {
   if (size > 1 && !body.empty()) {
     body.erase(body.begin());
     size--;
     SensingRange -= 2;
-  }
+    } else { alive = false; }
 }
 
 void RivalSnake::EnhanceSense(int i=2) {
@@ -101,8 +96,11 @@ void RivalSnake::EnhanceSense(int i=2) {
 
 void RivalSnake::RandomWalk() {
   std::lock_guard<std::mutex> Lock(_walkMutex);
+
+  while(alive) {
   int choice = RandomInt % 4;
   switch (choice) {
+
     case 0:
       direction = (direction == Direction::kDown) ? Direction::kDown : Direction::kUp ;
       break;
@@ -115,19 +113,21 @@ void RivalSnake::RandomWalk() {
     case 3:
       direction = (direction == Direction::kRight) ? Direction::kRight : Direction::kLeft;
       break;
-  }
-  std::this_thread::sleep_for(std::chrono::seconds(1));
+    }
+    walkConditionVariable.notify_one();
+    std::this_thread::sleep_for(std::chrono::seconds(1));
+    }
 }
 
 void RivalSnake::Update() {
-  if(alive) {
+
   // InitializeSensorMap();
   // Capture previous head before updating
   SDL_Point prev_cell{
       static_cast<int>(origin_x),
       static_cast<int>(
           origin_y)};
-  Move();
+  Sense();
   // sensorMap->print(); // print to debug
   UpdateHead();
   // Capture new head after updating
@@ -139,7 +139,7 @@ void RivalSnake::Update() {
   if (current_cell.x != prev_cell.x || current_cell.y != prev_cell.y) {
     UpdateBody(current_cell, prev_cell);
         }
-   }
+
 }
 
 const Color RivalSnake::getDefaultHeadColor() {

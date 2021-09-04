@@ -160,8 +160,10 @@ void Game::Update() {
         foodConsumptionThread = std::thread(&Snake::Consume, snake, food,
           std::move(prmFoodConsumption));
       }
-      if (snake->isA<RivalSnake>())
+      if (snake->isA<RivalSnake>()) {
         rival = std::dynamic_pointer_cast<RivalSnake>(gameobject);
+        if (!rival->alive) Place<RivalSnake>();
+      }
     }
   }
 
@@ -175,13 +177,15 @@ void Game::Update() {
   // Check if snakes (& bullets) have collided each other
   if (rival != nullptr) {
     if (player->Collide(std::move(rival.get()))) {
-      if (rival->size > 1) rival->Shrink();
-      else Place<RivalSnake>();
+      rival->Shrink();
+      if (!rival->alive) {
+          Place<RivalSnake>();
+          score++;
+        }
       return;
     }
-    if (rival->Collide(std::move(player.get()))
-            && rival->size > 1) {
-        player->alive = false;
+    if (rival->Collide(std::move(player.get()))) {
+        player->Shrink();
         return;
     }
     if (!player->bullets.empty()) {

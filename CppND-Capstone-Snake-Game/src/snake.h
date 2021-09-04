@@ -36,7 +36,9 @@ class Snake : public Movables, public GameObject {
   // Implement GameObject & Movables
   void Initialize() override;
   bool Collide(const GameObject* other) override;
+
   virtual void Digest()=0;
+  virtual void Shrink()=0;
 
   // Actions
   void GrowBody();
