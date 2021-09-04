@@ -156,13 +156,10 @@ void RivalSnake::Digest() {
     case Food::State::kNormal:
       speed += 0.02;
       EnhanceSense();
-      std::cout << "Huh oh! The rival snake has eaten the food." << std::endl;
       break;
     case Food::State::kSuper:
       break;
     case Food::State::kPoison:
-      std::cout << "Ah ha! The rival snake will be poisoned for ";
-      std::cout << RandomInt+(size / 5) << " seconds." << std::endl;
       state = State::kPoisoned;
       speed /= 2;
       EnhanceSense(-2);
@@ -171,12 +168,9 @@ void RivalSnake::Digest() {
         state = State::kNormal;
         speed *= 2;
         EnhanceSense();
-        std::cout << "Rival snake resumes normal." << std::endl;
       }
       break;
     case Food::State::kSpeedup:
-      std::cout << "Oops! The rival snake will rush for ";
-      std::cout << RandomInt+(size / 5) << " seconds." << std::endl;
       state = State::kSpeeding;
       speed *= 2;
       EnhanceSense(4);
@@ -185,7 +179,6 @@ void RivalSnake::Digest() {
         state = State::kNormal;
         speed /= 2;
         EnhanceSense(-2);
-        std::cout << "Rival snake resumes normal." << std::endl;
       }
       break;
   }
