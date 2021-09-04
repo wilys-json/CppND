@@ -24,8 +24,8 @@ class Snake : public Movables, public GameObject {
       : GameObject(grid_width, grid_height, std::move(gameMap)),
         Movables(Direction::kUp, 0.1f) {}
 
-  // destructor
-  virtual ~Snake() {};
+  // // destructor
+  ~Snake() {};
 
   // // Move & Copy Semantics
   // Snake(const Snake& source); // copy constructor

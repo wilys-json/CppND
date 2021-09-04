@@ -5,8 +5,7 @@
 
 PlayerSnake::~PlayerSnake() {
   map = nullptr;
-  for (auto& bullet : bullets) bullet = nullptr;
-  for (auto& thread : threads) thread.join();
+  if (!bullets.empty()) for (auto& bullet : bullets) bullet = nullptr;
 }
 
 void PlayerSnake::UpdateBullets() {

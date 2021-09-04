@@ -7,7 +7,6 @@
 
 RivalSnake::~RivalSnake() {
   map = nullptr;
-  for (auto& thread : threads) thread.join();
 }
 
 void RivalSnake::Initialize() {
@@ -82,7 +81,8 @@ void RivalSnake::Aim(const int& sensor_x, const int& sensor_y) {
 }
 
 void RivalSnake::Move() {
-  if(!Sense()) threads.emplace_back(std::thread(&RivalSnake::RandomWalk, this));
+  if(!Sense())
+  if(threads.empty()) threads.emplace_back(std::thread(&RivalSnake::RandomWalk, this));
 }
 
 

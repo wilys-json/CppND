@@ -13,7 +13,6 @@ class Movables
     direction(direction),
     speed(speed) {};
    Movables() {};
-   virtual ~Movables() {};
    virtual bool Collide(const GameObject* other) = 0;
    Direction direction;
    float speed;

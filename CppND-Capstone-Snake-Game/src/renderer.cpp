@@ -95,7 +95,6 @@ void Renderer::Render(std::vector<std::shared_ptr<GameObject>>& objectPool) {
 
         SDL_RenderFillRect(sdl_renderer, &block);
 
-        // Render bullet & bullet body
 
       continue;
     }

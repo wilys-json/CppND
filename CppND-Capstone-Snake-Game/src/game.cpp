@@ -1,5 +1,6 @@
 #include <future>
 #include <type_traits>
+#include <typeinfo>
 #include "game.h"
 #include "snake.h"
 #include "rival.h"
@@ -38,6 +39,14 @@ void Game::Initialize() {
   objectPool.push_back(player);
   Place<Food>();
   Place<RivalSnake>();
+}
+
+Game::~Game() {
+    player = nullptr;
+    food = nullptr;
+    for (auto& gameobject : objectPool) {
+        gameobject = nullptr;
+    }
 }
 
 void Game::Run(Controller const &controller, Renderer &renderer,
@@ -96,7 +105,9 @@ void Game::Place() {
     for (auto &gameobject : objectPool) {
       if (gameobject->isA<T>()) {
         if constexpr(std::is_same_v<T, Food>) {
-          gameobject.reset(new T(x, y, map));
+          // gameobject.reset(new T(x, y, map));
+          gameobject = nullptr;
+          gameobject = std::make_shared<Food>(x, y, map);
           food = std::dynamic_pointer_cast<Food>(gameobject);
           food->Initialize(score, x, y);
           return;
@@ -104,7 +115,9 @@ void Game::Place() {
         int obj_x = static_cast<int>(gameobject->origin_x);
         int obj_y = static_cast<int>(gameobject->origin_y);
         (*map)[obj_y][obj_x] = nullptr;
-        gameobject.reset(new T(grid_width, grid_height, map));
+        // gameobject.reset(new T(grid_width, grid_height, map));
+        gameobject = nullptr;
+        gameobject = std::make_shared<T>(grid_width, grid_height, map);
         std::dynamic_pointer_cast<T>(gameobject)->Initialize(score, x, y);
         return;
      }
@@ -147,9 +160,11 @@ void Game::Update() {
         foodConsumptionThread = std::thread(&Snake::Consume, snake, food,
           std::move(prmFoodConsumption));
       }
-      if (snake->isA<RivalSnake>()) rival = std::dynamic_pointer_cast<RivalSnake>(gameobject);
+      if (snake->isA<RivalSnake>())
+        rival = std::dynamic_pointer_cast<RivalSnake>(gameobject);
     }
   }
+
 
   if (foodConsumptionThread.joinable()) {
     foodConsumptionThread.join();
@@ -161,10 +176,7 @@ void Game::Update() {
   if (rival != nullptr) {
     if (player->Collide(std::move(rival.get()))) {
       if (rival->size > 1) rival->Shrink();
-      else if (rival->size == 1) {
-          rival->alive = false;
-          Place<RivalSnake>();
-      }
+      else Place<RivalSnake>();
       return;
     }
     if (rival->Collide(std::move(player.get()))

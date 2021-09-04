@@ -1,6 +1,7 @@
 #ifndef GAMEOBJECT_H
 #define GAMEOBJECT_H
 
+#include <algorithm>
 #include <vector>
 #include <memory>
 #include <thread>
@@ -31,6 +32,14 @@ class GameObject : public std::enable_shared_from_this<GameObject> {
      grid_height(grid_height),
      origin_x(grid_width / 2),
      origin_y(grid_height / 2) { setMap(std::move(gameMap)); }
+
+
+    ~GameObject() {
+        std::for_each(threads.begin(), threads.end(), [](std::thread &t) {
+            t.join();
+        });
+        std::cout << "Gameobject deleted." << std::endl;
+    };
 
     // Attributes
     float origin_x;
