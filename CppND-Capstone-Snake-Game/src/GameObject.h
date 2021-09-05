@@ -42,6 +42,7 @@ class GameObject : public std::enable_shared_from_this<GameObject> {
     virtual void Initialize()=0;
 
     // Setters
+    void Initialize(const int& score, const int& x, const int& y) {};
     void setMap(std::shared_ptr<Map<GameObject>> gameMap) {
       map = std::move(gameMap);
     };

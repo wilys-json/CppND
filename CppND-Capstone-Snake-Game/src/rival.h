@@ -12,7 +12,7 @@ public:
         SensingRange(3) {};
   ~RivalSnake();
 
-  void Move();
+
   void Shrink();
   void Update() override;
   void Initialize() override;
@@ -26,9 +26,10 @@ private:
   int SensingRange;
   std::mutex _walkMutex;
   void Digest() override;
+  void Move();
   void RandomWalk();
-  void EnhanceSense(int i);
   bool Sense();
+  void EnhanceSense(int i);
   void Aim(const int& sensor_x, const int& sensor_y);
 };
 
