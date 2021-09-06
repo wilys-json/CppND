@@ -1,8 +1,3 @@
 .github/**
-<<<<<<< HEAD
 build/
 *.sh
-=======
-*.sh
-build/
->>>>>>> 8e72581ff6293f5bbf1d1aec58b77c46efde592b
