@@ -10,8 +10,9 @@
 
 class Bullet : public Movables, public SwitchableColor, public GameObject {
  public:
+
+   // Constructors
    Bullet() {};
-   ~Bullet();
    Bullet(int grid_width,
           int grid_height,
           std::shared_ptr<Map<GameObject>> gameMap,
@@ -20,6 +21,9 @@ class Bullet : public Movables, public SwitchableColor, public GameObject {
      GameObject(grid_width, grid_height, gameMap),
      Movables(snake->direction, snake->speed + 0.2f),
      SwitchableColor() { Initialize(); };
+
+   // Destructors
+   ~Bullet();
 
    // Implement GameObject
    void Initialize() override;

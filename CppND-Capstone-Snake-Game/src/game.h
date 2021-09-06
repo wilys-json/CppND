@@ -39,12 +39,13 @@ class Game : public std::enable_shared_from_this<Game>{
   int GetScore() const;
   int GetSize() const;
 
-  // Owns the map
   std::shared_ptr<Map<GameObject>> map;
 
  private:
+
+  // Attributes & Pointers
   std::vector<std::shared_ptr<GameObject>> objectPool;
-  std::shared_ptr<PlayerSnake> player;  // owns Snake
+  std::shared_ptr<PlayerSnake> player;
   std::shared_ptr<Food> food;
   std::shared_ptr<RivalSnake> rival;
   std::random_device dev;

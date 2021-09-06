@@ -8,6 +8,7 @@ PlayerSnake::~PlayerSnake() {
   if (!bullets.empty()) for (auto& bullet : bullets) bullet = nullptr;
 }
 
+
 void PlayerSnake::UpdateBullets() {
   if (!bullets.empty()) {
     for (int i; i < bullets.size(); ++i) {
@@ -19,9 +20,12 @@ void PlayerSnake::UpdateBullets() {
   }
 }
 
+
 const Color PlayerSnake::getDefaultHeadColor() {
   return DefaultColors::PlayerHeadColor;
 }
+
+
 const Color PlayerSnake::getDefaultBodyColor() {
   return DefaultColors::PlayerBodyColor;
 }
@@ -47,6 +51,7 @@ void PlayerSnake::Update() {
 
 }
 
+
 bool PlayerSnake::Collide(const GameObject* other) {
   if (other == this) return false;
 
@@ -63,11 +68,6 @@ bool PlayerSnake::Collide(const GameObject* other) {
     if (other_part.x == this_x && other_part.y == this_y) return true;
   }
 
-  // for (const auto &bullet : bullets) {
-  //   if (bullet->offGrid()) continue;
-  //   if (bullet->Collide(other)) return true;
-  // }
-
   return false;
 
 }
@@ -80,6 +80,7 @@ void PlayerSnake::Shrink() {
 }
 
 void PlayerSnake::Digest() {
+
   std::lock_guard<std::mutex> Lock(_mutex);
   switch(foodConsumed->getState()) {
     case Food::State::kNormal:

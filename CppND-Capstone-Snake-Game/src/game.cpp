@@ -106,8 +106,6 @@ void Game::Place() {
       if (gameobject->isA<T>()) {
         if constexpr(std::is_same_v<T, Food>) {
           gameobject.reset(new T(x, y, map));
-          // gameobject = nullptr;
-          // gameobject = std::make_shared<Food>(x, y, map);
           food = std::dynamic_pointer_cast<Food>(gameobject);
           food->Initialize(score, x, y);
           return;
@@ -117,8 +115,6 @@ void Game::Place() {
         int obj_y = static_cast<int>(gameobject->origin_y);
         (*map)[obj_y][obj_x] = nullptr;
         gameobject.reset(new T(grid_width, grid_height, map));
-        // gameobject = nullptr;
-        // gameobject = std::make_shared<T>(grid_width, grid_height, map);
         rival = std::dynamic_pointer_cast<T>(gameobject);
         rival->Initialize(score, x, y);
         return;
@@ -153,6 +149,7 @@ void Game::Update() {
   clearMap();
 
 
+  // Update and check for `foodConsumption` event
   for (auto& gameobject : objectPool) {
     gameobject->Update();
     if(gameobject->isA<Snake>()) {
@@ -166,6 +163,7 @@ void Game::Update() {
   }
 
 
+  // Send future to queue
   if (foodConsumptionThread.joinable()) {
     foodConsumptionThread.join();
     foodConsumptionQueue.send(std::move(ftrFoodConsumption.get()));
@@ -177,11 +175,9 @@ void Game::Update() {
 }
 
 
-
 void Game::CheckEvents() {
 
-
-    // Food Consumption
+    // Food Consumption, receive future
     auto foodConsumer = foodConsumptionQueue.receive();
     if (foodConsumer != nullptr) {
       if (foodConsumer->isA<PlayerSnake>()) {
@@ -200,6 +196,7 @@ void Game::CheckEvents() {
       return;
     }
 
+    // Check for Bullet collision
     if (!player->bullets.empty()) {
       for (auto& bullet : player->bullets) {
         if (bullet == nullptr) continue;
@@ -209,17 +206,15 @@ void Game::CheckEvents() {
 
     // Check on Rival collides Player
     if (rival->Collide(std::move(player.get()))) {
-        player->Shrink();
-        return;
+        if (rival->size > 1) {
+          player->alive = false;
+          return;
+        }
+        if (rival->size == 1 || player->size > 1) {
+          player->Shrink();
+          return;
+        }
     }
-
-
-    if (rival->Collide(std::move(player.get())) && rival->size > 1) {
-        player->alive = false;
-        return;
-    }
-
-
 }
 
 

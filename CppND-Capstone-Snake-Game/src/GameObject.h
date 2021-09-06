@@ -38,7 +38,6 @@ class GameObject : public std::enable_shared_from_this<GameObject> {
         std::for_each(threads.begin(), threads.end(), [](std::thread &t) {
             if (t.joinable()) t.join();
         });
-        std::cout << "Gameobject deleted." << std::endl;
     };
 
     // Attributes
@@ -64,15 +63,15 @@ class GameObject : public std::enable_shared_from_this<GameObject> {
       int head_x = static_cast<int>(origin_x);
       int head_y = static_cast<int>(origin_y);
       if(map->at(head_y, head_x) == nullptr) {
-        (*map)[head_y][head_x] = shared_from_this();
+        (*map)[head_y][head_x] = shareThis();
       }
     };
     void putBodytoMap() {
       if(offGrid()) return;
       if (!body.empty()) {
-        for (auto &part : body) {
+        for (auto const& part : body) {
           if (map->at(part.y, part.x) == nullptr) {
-            (*map)[part.y][part.x] = shared_from_this();
+            (*map)[part.y][part.x] = shareThis();
           }
         }
       }
@@ -98,6 +97,8 @@ class GameObject : public std::enable_shared_from_this<GameObject> {
       if (x < 0 || x >= grid_width || y < 0 || y >= grid_height) return true;
       return false;
     }
+
+    std::shared_ptr<GameObject> shareThis() { return shared_from_this(); };
 
   protected:
     int grid_width;

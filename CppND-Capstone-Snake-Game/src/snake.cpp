@@ -75,7 +75,7 @@ void Snake::UpdateBody(SDL_Point &current_head_cell,
       alive = false;
       return;
     }
-    (*map)[item.y][item.x] = shared_from_this();
+    (*map)[item.y][item.x] = shareThis();
   }
 }
 
@@ -99,7 +99,7 @@ void Snake::Consume(std::shared_ptr<Food> food,
   if (state == State::kNormal) {
     threads.emplace_back(std::thread(&Snake::Digest, this));
   }
-  prmFoodConsumption.set_value(std::dynamic_pointer_cast<Snake>(shared_from_this()));
+  prmFoodConsumption.set_value(std::dynamic_pointer_cast<Snake>(shareThis()));
 }
 
 

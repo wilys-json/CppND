@@ -42,13 +42,18 @@ void RivalSnake::Sense() {
       if(i - SensingRange == 0 && j - SensingRange == 0) continue;
       int sensor_x = static_cast<int>(origin_x) + j - SensingRange;
       int sensor_y = static_cast<int>(origin_y) + i - SensingRange;
-      if (offGrid(sensor_x, sensor_y)) continue;
+      if (offGrid(sensor_x, sensor_y) || map->at(sensor_y, sensor_x)->isA<RivalSnake>())
+        continue;
+      // Aim food first
       if(map->at(sensor_y, sensor_x)->isA<Food>()) {
         mode = Mode::kBattle;
         Aim(sensor_x, sensor_y);
       }
+      // Then aim player
       if(map->at(sensor_y, sensor_x)->isA<PlayerSnake>()) {
         mode = ((std::dynamic_pointer_cast<Snake>(map->at(sensor_y, sensor_x))->getState() == Snake::State::kPoisoned) ? Mode::kBattle : Mode::kEscape);
+        // mode = Mode::kBattle;  // Always attack player [for testing]
+        // mode = Mode::kEscape; // Always escape from player [for testing]
         Aim(sensor_x, sensor_y);
       }
     }
@@ -102,28 +107,30 @@ void RivalSnake::RandomWalk() {
   while(alive) {
   int choice = RandomInt % 4;
   switch (choice) {
-
     case 0:
-      direction = (direction == Direction::kDown) ? Direction::kDown : Direction::kUp ;
+      direction = ((direction == Direction::kDown) ?
+                    Direction::kDown : Direction::kUp);
       break;
     case 1:
-      direction = (direction == Direction::kUp) ? Direction::kUp : Direction::kDown ;
+      direction = ((direction == Direction::kUp) ?
+                    Direction::kUp : Direction::kDown);
       break;
     case 2:
-      direction = (direction == Direction::kLeft) ? Direction::kLeft : Direction::kRight;
+      direction = ((direction == Direction::kLeft) ?
+                    Direction::kLeft : Direction::kRight);
       break;
     case 3:
-      direction = (direction == Direction::kRight) ? Direction::kRight : Direction::kLeft;
+      direction = ((direction == Direction::kRight) ?
+                    Direction::kRight : Direction::kLeft);
       break;
     }
     walkConditionVariable.notify_one();
     std::this_thread::sleep_for(std::chrono::seconds(1));
-    }
+  }
 }
 
 void RivalSnake::Update() {
 
-  // InitializeSensorMap();
   // Capture previous head before updating
   SDL_Point prev_cell{
       static_cast<int>(origin_x),
@@ -147,6 +154,8 @@ void RivalSnake::Update() {
 const Color RivalSnake::getDefaultHeadColor() {
   return DefaultColors::RivalHeadColor;
 }
+
+
 const Color RivalSnake::getDefaultBodyColor() {
   return DefaultColors::RivalBodyColor;
 }
