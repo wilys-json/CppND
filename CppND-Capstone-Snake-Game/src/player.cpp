@@ -5,8 +5,7 @@
 
 PlayerSnake::~PlayerSnake() {
   map = nullptr;
-  for (auto& bullet : bullets) bullet = nullptr;
-  for (auto& thread : threads) thread.join();
+  if (!bullets.empty()) for (auto& bullet : bullets) bullet = nullptr;
 }
 
 void PlayerSnake::UpdateBullets() {
@@ -73,6 +72,12 @@ bool PlayerSnake::Collide(const GameObject* other) {
 
 }
 
+void PlayerSnake::Shrink() {
+  if (size > 1 && !body.empty()) {
+    body.erase(body.begin());
+    size--;
+    } else { alive = false; }
+}
 
 void PlayerSnake::Digest() {
   std::lock_guard<std::mutex> Lock(_mutex);

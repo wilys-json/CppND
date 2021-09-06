@@ -1,5 +1,6 @@
 #include <future>
 #include <type_traits>
+#include <typeinfo>
 #include "game.h"
 #include "snake.h"
 #include "rival.h"
@@ -10,7 +11,7 @@ T MessageQueue<T>::receive()
 {
 
   std::unique_lock<std::mutex> Lock(_mutex);
-  _condition.wait(Lock, [this]{return !_queue.empty();});
+  if(_queue.empty()) return NULL;
   T receivedMessage = std::move(_queue.back());
   _queue.clear();
   return receivedMessage;
@@ -38,6 +39,14 @@ void Game::Initialize() {
   objectPool.push_back(player);
   Place<Food>();
   Place<RivalSnake>();
+}
+
+Game::~Game() {
+    player = nullptr;
+    food = nullptr;
+    for (auto& gameobject : objectPool) {
+        gameobject = nullptr;
+    }
 }
 
 void Game::Run(Controller const &controller, Renderer &renderer,
@@ -92,33 +101,40 @@ void Game::Place() {
     // food.
     if (map->at(y, x) != nullptr) continue;
 
-    // Reassign the Food pointer pointing to new Food
+    // Reassignment
     for (auto &gameobject : objectPool) {
       if (gameobject->isA<T>()) {
         if constexpr(std::is_same_v<T, Food>) {
           gameobject.reset(new T(x, y, map));
+          // gameobject = nullptr;
+          // gameobject = std::make_shared<Food>(x, y, map);
           food = std::dynamic_pointer_cast<Food>(gameobject);
           food->Initialize(score, x, y);
           return;
         }
+        else if constexpr(std::is_same_v<T, RivalSnake>) {
         int obj_x = static_cast<int>(gameobject->origin_x);
         int obj_y = static_cast<int>(gameobject->origin_y);
         (*map)[obj_y][obj_x] = nullptr;
         gameobject.reset(new T(grid_width, grid_height, map));
-        std::dynamic_pointer_cast<T>(gameobject)->Initialize(score, x, y);
+        // gameobject = nullptr;
+        // gameobject = std::make_shared<T>(grid_width, grid_height, map);
+        rival = std::dynamic_pointer_cast<T>(gameobject);
+        rival->Initialize(score, x, y);
         return;
+        }
      }
    }
 
-   // Initialize Food
+   // Initialization
    if constexpr(std::is_same_v<T, Food>) {
      food = std::make_shared<T>(x, y, map);
      food->Initialize(0, x, y);
      objectPool.push_back(food);
-   } else {
-     std::shared_ptr<T> gameobject = std::make_shared<T>(grid_width, grid_height, map);
-     std::dynamic_pointer_cast<T>(gameobject)->Initialize();
-     objectPool.push_back(gameobject);
+   } else if constexpr(std::is_same_v<T, RivalSnake>){
+     rival = std::make_shared<T>(grid_width, grid_height, map);
+     rival->Initialize();
+     objectPool.push_back(rival);
    }
    return;
  }
@@ -127,9 +143,9 @@ void Game::Place() {
 void Game::Update() {
 
   if(!player->alive) return;
+  if(!rival->alive) Place<RivalSnake>();
 
   int randomInt = random_w(engine);
-  std::shared_ptr<RivalSnake> rival;
   std::thread foodConsumptionThread;
   std::promise<std::shared_ptr<Snake>> prmFoodConsumption;
   std::future<std::shared_ptr<Snake>> ftrFoodConsumption = prmFoodConsumption.get_future();
@@ -142,56 +158,68 @@ void Game::Update() {
     if(gameobject->isA<Snake>()) {
       std::shared_ptr<Snake> snake = std::dynamic_pointer_cast<Snake>(gameobject);
       snake->setRandomInt(randomInt);
-      if (snake->Collide(std::move(food.get())))
-      {
+      if (snake->Collide(std::move(food.get()))) {
         foodConsumptionThread = std::thread(&Snake::Consume, snake, food,
           std::move(prmFoodConsumption));
       }
-      if (snake->isA<RivalSnake>()) {
-        rival = std::dynamic_pointer_cast<RivalSnake>(gameobject);
-      }
     }
   }
+
 
   if (foodConsumptionThread.joinable()) {
     foodConsumptionThread.join();
     foodConsumptionQueue.send(std::move(ftrFoodConsumption.get()));
-    UpdateScore();
+    Place<Food>();
   }
 
-  // Check if snakes (& bullets) have collided each other
-  if (player->Collide(std::move(rival.get()))) {
-    if (rival->size > 1) rival->Shrink();
-    else if (rival->size == 1) {
-        rival->alive = false;
-        // Place<RivalSnake>();
-    }
-    return;
-  }
-  if (rival->Collide(std::move(player.get()))
-          && rival->size > 1) {
-      player->alive = false;
-      return;
-  }
-  if (!player->bullets.empty()) {
-    for (auto& bullet : player->bullets) {
-      if (bullet == nullptr) continue;
-      if (bullet->Collide(std::move(rival.get()))) rival->Shrink();
-    }
-  }
+  CheckEvents();
 
 }
 
 
 
-void Game::UpdateScore() {
+void Game::CheckEvents() {
 
+
+    // Food Consumption
     auto foodConsumer = foodConsumptionQueue.receive();
-    if (foodConsumer->isA<PlayerSnake>()) {
+    if (foodConsumer != nullptr) {
+      if (foodConsumer->isA<PlayerSnake>()) {
         if (foodConsumer->getFood()->getState() != Food::State::kPoison)
          score++;
+       }
     }
-    Place<Food>();
+
+    // Check on Player collides Rival
+    if (player->Collide(std::move(rival.get()))) {
+      rival->Shrink();
+      if (!rival->alive) {
+          Place<RivalSnake>();
+          score++;
+      }
+      return;
+    }
+
+    if (!player->bullets.empty()) {
+      for (auto& bullet : player->bullets) {
+        if (bullet == nullptr) continue;
+        if (bullet->Collide(std::move(rival.get()))) rival->Shrink();
+      }
+    }
+
+    // Check on Rival collides Player
+    if (rival->Collide(std::move(player.get()))) {
+        player->Shrink();
+        return;
+    }
+
+
+    if (rival->Collide(std::move(player.get())) && rival->size > 1) {
+        player->alive = false;
+        return;
+    }
+
+
 }
 
 

@@ -24,8 +24,8 @@ class Snake : public Movables, public GameObject {
       : GameObject(grid_width, grid_height, std::move(gameMap)),
         Movables(Direction::kUp, 0.1f) {}
 
-  // destructor
-  virtual ~Snake() {};
+  // // destructor
+  ~Snake() {};
 
   // // Move & Copy Semantics
   // Snake(const Snake& source); // copy constructor
@@ -36,7 +36,9 @@ class Snake : public Movables, public GameObject {
   // Implement GameObject & Movables
   void Initialize() override;
   bool Collide(const GameObject* other) override;
+
   virtual void Digest()=0;
+  virtual void Shrink()=0;
 
   // Actions
   void GrowBody();
@@ -56,11 +58,10 @@ class Snake : public Movables, public GameObject {
 
   // Setters
   void setRandomInt(const int& randomNumber);
+  void setRival(std::shared_ptr<Snake> rivalPtr);
 
   protected:
-  // private actions
   void UpdateHead();
-  // void UpdateBullets();
   void UpdateBody(SDL_Point &current_cell, SDL_Point &prev_cell);
 
   // attributes & pointer
@@ -68,6 +69,7 @@ class Snake : public Movables, public GameObject {
   bool growing{false};
   int RandomInt{0};
   std::shared_ptr<Food> foodConsumed;
+  std::shared_ptr<Snake> rival;
   std::mutex _mutex;
 
 };

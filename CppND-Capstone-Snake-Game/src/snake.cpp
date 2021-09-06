@@ -25,12 +25,6 @@ bool Snake::Collide(const GameObject* other) {
     if (other_part.x == this_x && other_part.y == this_y) return true;
   }
 
-  // // Check if snake's body is hit by other's head
-  // for (const auto &this_part : body) {
-  //   if (this_part.x == static_cast<int>(other->origin_x)
-  //   && this_part.y == static_cast<int>(other->origin_y)) return true;
-  // }
-
   return false;
 
 }
@@ -93,6 +87,9 @@ void Snake::setRandomInt(const int& randomNumber) {
   RandomInt = (randomNumber % 10);
 }
 
+void Snake::setRival(std::shared_ptr<Snake> rivalPtr) {
+  rival = rivalPtr;
+}
 
 void Snake::Consume(std::shared_ptr<Food> food,
                     std::promise<std::shared_ptr<Snake>> prmFoodConsumption) {
@@ -106,60 +103,8 @@ void Snake::Consume(std::shared_ptr<Food> food,
 }
 
 
-// void Snake::Digest() {
-//   std::lock_guard<std::mutex> Lock(_mtx);
-//   switch(foodConsumed->getState()) {
-//     case Food::State::kNormal:
-//       speed += 0.02;
-//       break;
-//     case Food::State::kSuper:
-//       std::cout << "enable shooter mode for ";
-//       std::cout << ModeDuration+(size / 5) << " seconds." << std::endl;
-//       state = State::kShooter;
-//       speed += 0.04;
-//       std::this_thread::sleep_for(std::chrono::seconds(ModeDuration+(size / 5)));
-//       if (alive) {
-//         state = State::kNormal;
-//         speed -= 0.02;
-//         std::cout << "shooter mode ends." << std::endl;
-//       }
-//       break;
-//     case Food::State::kPoison:
-//       std::cout << "Oh no! The snake will be poisoned for ";
-//       std::cout << ModeDuration+(size / 5) << " seconds." << std::endl;
-//       state = State::kPoisoned;
-//       speed /= 2;
-//       std::this_thread::sleep_for(std::chrono::seconds(ModeDuration+(size / 5)));
-//       if (alive) {
-//         state = State::kNormal;
-//         speed *= 2;
-//         std::cout << "poisoned mode ends." << std::endl;
-//       }
-//       break;
-//     case Food::State::kSpeedup:
-//       std::cout << "Wow! The snake will rush for ";
-//       std::cout << ModeDuration+(size / 5) << " seconds." << std::endl;
-//       state = State::kSpeeding;
-//       speed *= 2;
-//       std::this_thread::sleep_for(std::chrono::seconds(ModeDuration+(size / 5)));
-//       if (alive) {
-//         state = State::kNormal;
-//         speed /= 2;
-//         std::cout << "speeding mode ends." << std::endl;
-//       }
-//       break;
-//   }
-// }
-//
-//
-// void Snake::Shoot() {
-//   if(!alive || state != State::kShooter) return;
-//   bullets.push_back(
-//     std::move(std::make_shared<Bullet>(grid_width,grid_height, map,
-//         std::dynamic_pointer_cast<Snake>(shared_from_this()))));
-// }
 
-// Deprecated : Implementation of Rule of Five
+// Implementation of Rule of Five
 
 // Snake::Snake(const Snake& source) {
 //     std::shared_lock<std::shared_mutex> _sourceLock(source._mtx, std::defer_lock);

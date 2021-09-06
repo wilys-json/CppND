@@ -14,7 +14,6 @@ namespace DefaultColors {
 class SwitchableColor {
   public:
     SwitchableColor() {};
-    virtual ~SwitchableColor() {};
     Color& getColor() { return color; }
   protected:
     virtual void Blink() = 0;

@@ -32,6 +32,7 @@ private:
 class Game : public std::enable_shared_from_this<Game>{
  public:
   Game(std::size_t grid_width, std::size_t grid_height);
+  ~Game();
   void Initialize();
   void Run(Controller const &controller, Renderer &renderer,
            std::size_t target_frame_duration);
@@ -45,6 +46,7 @@ class Game : public std::enable_shared_from_this<Game>{
   std::vector<std::shared_ptr<GameObject>> objectPool;
   std::shared_ptr<PlayerSnake> player;  // owns Snake
   std::shared_ptr<Food> food;
+  std::shared_ptr<RivalSnake> rival;
   std::random_device dev;
   std::size_t grid_width;
   std::size_t grid_height;
@@ -52,13 +54,12 @@ class Game : public std::enable_shared_from_this<Game>{
   std::uniform_int_distribution<int> random_w;
   std::uniform_int_distribution<int> random_h;
   MessageQueue<std::shared_ptr<Snake>> foodConsumptionQueue;
-  std::vector<std::thread> foodConsumptionThreads;
   int score{0};
 
   template <class T>
   void Place();
   void Update();
-  void UpdateScore();
+  void CheckEvents();
   void clearMap() { map->clear(); } ;
 };
 
