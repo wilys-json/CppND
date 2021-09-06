@@ -39,15 +39,20 @@ void RivalSnake::Sense() {
   int sensorMapSize = (SensingRange * 2)+1;
   for(int i = 0; i < sensorMapSize; ++i) {
     for(int j = 0; j < sensorMapSize; ++j) {
-      if(i - SensingRange == 0 && j - SensingRange == 0) continue;
+      // if(i - SensingRange == 0 && j - SensingRange == 0) {
+      //   std::cout << " " << std::endl;
+      //   continue;
+      // }
       int sensor_x = static_cast<int>(origin_x) + j - SensingRange;
       int sensor_y = static_cast<int>(origin_y) + i - SensingRange;
-      if (offGrid(sensor_x, sensor_y) || map->at(sensor_y, sensor_x)->isA<RivalSnake>())
+      if (offGrid(sensor_x, sensor_y)|| map->at(sensor_y, sensor_x)->isA<RivalSnake>())
         continue;
+
       // Aim food first
       if(map->at(sensor_y, sensor_x)->isA<Food>()) {
         mode = Mode::kBattle;
         Aim(sensor_x, sensor_y);
+        continue;
       }
       // Then aim player
       if(map->at(sensor_y, sensor_x)->isA<PlayerSnake>()) {
@@ -55,6 +60,7 @@ void RivalSnake::Sense() {
         // mode = Mode::kBattle;  // Always attack player [for testing]
         // mode = Mode::kEscape; // Always escape from player [for testing]
         Aim(sensor_x, sensor_y);
+        continue;
       }
     }
   }
@@ -136,7 +142,7 @@ void RivalSnake::Update() {
       static_cast<int>(origin_x),
       static_cast<int>(
           origin_y)};
-  Sense();
+
   // sensorMap->print(); // print to debug
   UpdateHead();
   // Capture new head after updating
@@ -148,6 +154,8 @@ void RivalSnake::Update() {
   if (current_cell.x != prev_cell.x || current_cell.y != prev_cell.y) {
     UpdateBody(current_cell, prev_cell);
         }
+
+  Sense();
 
 }
 

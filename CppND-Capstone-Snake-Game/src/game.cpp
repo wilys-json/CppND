@@ -5,6 +5,10 @@
 #include "snake.h"
 #include "rival.h"
 
+const std::string Game::cacheFilePath{"../data/cache.txt"};
+const std::string Game::Record::highestScoreKeyWord{"highest_score"};
+const std::string Game::Record::longestPlayTimeKeyWord{"longest_playtime"};
+
 
 template <typename T>
 T MessageQueue<T>::receive()
@@ -17,6 +21,7 @@ T MessageQueue<T>::receive()
   return receivedMessage;
 }
 
+
 template <typename T>
 void MessageQueue<T>::send(T&& msg)
 {
@@ -25,12 +30,14 @@ void MessageQueue<T>::send(T&& msg)
   _condition.notify_one();
 }
 
+
 Game::Game(std::size_t grid_width, std::size_t grid_height)
     : engine(dev()),
       random_w(0, static_cast<int>(grid_width - 1)),
       random_h(0, static_cast<int>(grid_height - 1)),
       grid_width(grid_width),
-      grid_height(grid_height) { Initialize(); }
+      grid_height(grid_height),
+      record() { Initialize(); }
 
 void Game::Initialize() {
   map = std::make_shared<Map<GameObject>>(grid_height, grid_width);
@@ -90,7 +97,7 @@ void Game::Run(Controller const &controller, Renderer &renderer,
   }
 }
 
-template <class T>
+template <typename T>
 void Game::Place() {
   int x, y;
   while (true) {
@@ -218,6 +225,11 @@ void Game::CheckEvents() {
 }
 
 
+void Game::Terminate() {
+  std::cout << "Game has terminated successfully!\n";
+  std::cout << "Score: " << GetScore() << "\n";
+  std::cout << "Size: " << GetSize() << "\n";
+}
 
 int Game::GetScore() const { return score; }
 int Game::GetSize() const { return player->size; }

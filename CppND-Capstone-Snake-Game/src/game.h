@@ -9,12 +9,14 @@
 #include <memory>
 #include <vector>
 #include <utility>
+#include <string>
 #include "SDL.h"
 #include "map.h"
 #include "food.h"
 #include "player.h"
 #include "controller.h"
 #include "renderer.h"
+
 
 template <class T>
 class MessageQueue
@@ -29,6 +31,7 @@ private:
     std::mutex _mutex;
 };
 
+
 class Game : public std::enable_shared_from_this<Game>{
  public:
   Game(std::size_t grid_width, std::size_t grid_height);
@@ -38,10 +41,13 @@ class Game : public std::enable_shared_from_this<Game>{
            std::size_t target_frame_duration);
   int GetScore() const;
   int GetSize() const;
+  void Terminate();
 
   std::shared_ptr<Map<GameObject>> map;
 
  private:
+
+
 
   // Attributes & Pointers
   std::vector<std::shared_ptr<GameObject>> objectPool;
@@ -56,12 +62,22 @@ class Game : public std::enable_shared_from_this<Game>{
   std::uniform_int_distribution<int> random_h;
   MessageQueue<std::shared_ptr<Snake>> foodConsumptionQueue;
   int score{0};
+  static const std::string cacheFilePath;
+  struct Record {
+    static const std::string highestScoreKeyWord;
+    static const std::string longestPlayTimeKeyWord;
+    int HighestScore;
+    int LongestPlaytime;
+  } record;
 
-  template <class T>
-  void Place();
+  // Methods
+  void readRecord();
+  void writeRecord();
   void Update();
   void CheckEvents();
   void clearMap() { map->clear(); } ;
+  template <typename T>
+  void Place();
 };
 
 #endif

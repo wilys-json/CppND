@@ -5,14 +5,6 @@ Bullet::~Bullet() {
   shooter = nullptr;
 }
 
-void Bullet::removeThisFromShooter() {
-  for (int i = 0; i < shooter->bullets.size(); ++i) {
-    if (shooter->bullets[i].get() == this) {
-      shooter->bullets.erase(shooter->bullets.begin() + i);
-      return;
-    }
-  }
-}
 
 void Bullet::Initialize() {
   if(!initialized) {

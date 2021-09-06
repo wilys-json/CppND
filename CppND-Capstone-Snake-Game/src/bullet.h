@@ -34,7 +34,6 @@ class Bullet : public Movables, public SwitchableColor, public GameObject {
    std::shared_ptr<PlayerSnake> shooter;
    void UpdateHead();
    void Blink() override;
-   void removeThisFromShooter();
 };
 
 #endif

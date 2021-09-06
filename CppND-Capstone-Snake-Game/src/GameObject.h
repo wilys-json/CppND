@@ -86,8 +86,8 @@ class GameObject : public std::enable_shared_from_this<GameObject> {
 
     // Check if object has fallen out of boundary
     bool offGrid() {
-      if (origin_x <= 0 || origin_x >= grid_width
-       || origin_y <= 0 || origin_y >= grid_height) {
+      if (origin_x < 0 || origin_x >= grid_width
+       || origin_y < 0 || origin_y >= grid_height) {
          return true;
       }
       return false;
