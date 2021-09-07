@@ -11,7 +11,6 @@
 #include "SwitchableColor.h"
 #include "bullet.h"
 
-
 class Renderer {
  public:
   Renderer(const std::size_t screen_width, const std::size_t screen_height,
@@ -21,7 +20,7 @@ class Renderer {
   void Render(std::vector<std::shared_ptr<GameObject>>& objectPool);
   void SetRenderDrawColor(const Color color);
   void SetRenderDrawColor(std::shared_ptr<Snake> snake);
-  void UpdateWindowTitle(int score, int fps);
+  void UpdateWindowTitle(int score, int fps, int highest_score, int longest_playtime);
 
  private:
   SDL_Window *sdl_window;

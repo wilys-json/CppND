@@ -9,7 +9,6 @@
 #include <memory>
 #include <vector>
 #include <utility>
-#include <string>
 #include "SDL.h"
 #include "map.h"
 #include "food.h"
@@ -37,10 +36,11 @@ class Game : public std::enable_shared_from_this<Game>{
   Game(std::size_t grid_width, std::size_t grid_height);
   ~Game();
   void Initialize();
-  void Run(Controller const &controller, Renderer &renderer,
-           std::size_t target_frame_duration);
+  void Run(Controller const &controller, Renderer &renderer, std::size_t target_frame_duration);
   int GetScore() const;
   int GetSize() const;
+  int GetHighestScore() const;
+  int GetLongestPlayTime() const;
   void Terminate();
 
   std::shared_ptr<Map<GameObject>> map;

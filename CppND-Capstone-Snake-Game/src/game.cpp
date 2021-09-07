@@ -1,6 +1,9 @@
 #include <future>
 #include <type_traits>
 #include <typeinfo>
+#include <fstream>
+#include <sstream>
+#include <string>
 #include "game.h"
 #include "snake.h"
 #include "rival.h"
@@ -40,6 +43,7 @@ Game::Game(std::size_t grid_width, std::size_t grid_height)
       record() { Initialize(); }
 
 void Game::Initialize() {
+  readRecord();
   map = std::make_shared<Map<GameObject>>(grid_height, grid_width);
   player = std::make_shared<PlayerSnake>(grid_width, grid_height, map);
   player->Initialize();
@@ -83,7 +87,9 @@ void Game::Run(Controller const &controller, Renderer &renderer,
 
     // After every second, update the window title.
     if (frame_end - title_timestamp >= 1000) {
-      renderer.UpdateWindowTitle(score, frame_count);
+      renderer.UpdateWindowTitle(score, frame_count,
+                                std::move(GetHighestScore()),
+                                std::move(GetLongestPlayTime()));
       frame_count = 0;
       title_timestamp = frame_end;
     }
@@ -233,3 +239,22 @@ void Game::Terminate() {
 
 int Game::GetScore() const { return score; }
 int Game::GetSize() const { return player->size; }
+int Game::GetLongestPlayTime() const { return record.LongestPlaytime; }
+int Game::GetHighestScore() const { return record.HighestScore; }
+
+void Game::readRecord() {
+    std::string key, line;
+    int value;
+    std::ifstream filestream(cacheFilePath);
+    if (filestream.is_open()) {
+      while (std::getline(filestream, line)) {
+        std::istringstream linestream(line);
+        while (linestream >> key >> value) {
+            if (key == record.highestScoreKeyWord)
+                 record.HighestScore = value;
+            if (key ==  record.longestPlayTimeKeyWord)
+                 record.LongestPlaytime = value;
+            }
+        }
+     }
+}

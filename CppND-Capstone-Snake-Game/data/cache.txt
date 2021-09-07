@@ -1,1 +1,2 @@
-highest_score 0 longest_playtime 0
+highest_score 0
+longest_playtime 0
