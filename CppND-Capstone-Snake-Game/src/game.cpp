@@ -4,14 +4,15 @@
 #include <fstream>
 #include <sstream>
 #include <string>
+#include <stdexcept>
 #include "game.h"
 #include "snake.h"
 #include "rival.h"
+#include "Base64.h"
 
 const std::string Game::cacheFilePath{"../data/cache.txt"};
 const std::string Game::Record::highestScoreKeyWord{"highest_score"};
-const std::string Game::Record::longestPlayTimeKeyWord{"longest_playtime"};
-
+const char Game::Record::SkipLineCharacter{'*'};
 
 template <typename T>
 T MessageQueue<T>::receive()
@@ -88,8 +89,7 @@ void Game::Run(Controller const &controller, Renderer &renderer,
     // After every second, update the window title.
     if (frame_end - title_timestamp >= 1000) {
       renderer.UpdateWindowTitle(score, frame_count,
-                                std::move(GetHighestScore()),
-                                std::move(GetLongestPlayTime()));
+                                std::move(GetHighestScore()));
       frame_count = 0;
       title_timestamp = frame_end;
     }
@@ -101,6 +101,7 @@ void Game::Run(Controller const &controller, Renderer &renderer,
       SDL_Delay(target_frame_duration - frame_duration);
     }
   }
+
 }
 
 template <typename T>
@@ -239,22 +240,26 @@ void Game::Terminate() {
 
 int Game::GetScore() const { return score; }
 int Game::GetSize() const { return player->size; }
-int Game::GetLongestPlayTime() const { return record.LongestPlaytime; }
 int Game::GetHighestScore() const { return record.HighestScore; }
 
 void Game::readRecord() {
-    std::string key, line;
+    std::string key, line, decoded;
     int value;
     std::ifstream filestream(cacheFilePath);
     if (filestream.is_open()) {
       while (std::getline(filestream, line)) {
+        if (line.at(0) == record.SkipLineCharacter) continue;
+        std::cout << "Encode: " << macaron::Base64::Encode(line) << std::endl;
+        macaron::Base64::Decode(macaron::Base64::Encode(line), decoded);
+        std::cout << "Decode: " << decoded << std::endl;
         std::istringstream linestream(line);
         while (linestream >> key >> value) {
-            if (key == record.highestScoreKeyWord)
+            if (key == record.highestScoreKeyWord) {
                  record.HighestScore = value;
-            if (key ==  record.longestPlayTimeKeyWord)
-                 record.LongestPlaytime = value;
+                 return;
+               }
             }
         }
+        throw std::runtime_error("Score Record not found or corrupted\nPlease see README for resetting the record.");
      }
 }

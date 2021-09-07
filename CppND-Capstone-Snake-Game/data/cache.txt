@@ -1,2 +1,2 @@
+******DO NOT CHANGE THE LINE BELOW*****
 highest_score 0
-longest_playtime 0

@@ -100,71 +100,12 @@ void Renderer::Render(std::vector<std::shared_ptr<GameObject>>& objectPool) {
     }
 
   }
-  //
-  // // Render food
-  // switch(food.getColor()) {
-  //   case SwitchableColor::Color::kYellow:
-  //     SDL_SetRenderDrawColor(sdl_renderer, 0xFF, 0xCC, 0x00, 0xFF);
-  //     break;
-  //   case SwitchableColor::Color::kWhite:
-  //     SDL_SetRenderDrawColor(sdl_renderer, 0xFF, 0xFF, 0xFF, 0xFF);
-  //     break;
-  //   case SwitchableColor::Color::kBlue:
-  //     SDL_SetRenderDrawColor(sdl_renderer, 0x00, 0x7A, 0xCC, 0xFF);
-  //     break;
-  //   case SwitchableColor::Color::kRed:
-  //     SDL_SetRenderDrawColor(sdl_renderer, 0xFF, 0x00, 0x00, 0xFF);
-  //     break;
-  // }
-  // block.x = food.origin_x * block.w;
-  // block.y = food.origin_y * block.h;
-  // SDL_RenderFillRect(sdl_renderer, &block);
-  //
-  // // Render snake's body
-  // SDL_SetRenderDrawColor(sdl_renderer, 0xFF, 0xFF, 0xFF, 0xFF);
-  // for (SDL_Point const &point : snake.body) {
-  //   block.x = point.x * block.w;
-  //   block.y = point.y * block.h;
-  //   SDL_RenderFillRect(sdl_renderer, &block);
-  // }
-  //
-  // // Render snake's head
-  // block.x = static_cast<int>(snake.origin_x) * block.w;
-  // block.y = static_cast<int>(snake.origin_y) * block.h;
-  // if (snake.alive) {
-  //   SDL_SetRenderDrawColor(sdl_renderer, 0x00, 0x7A, 0xCC, 0xFF);
-  // } else {
-  //   SDL_SetRenderDrawColor(sdl_renderer, 0xFF, 0x00, 0x00, 0xFF);
-  // }
-  // SDL_RenderFillRect(sdl_renderer, &block);
-  //
-  // // Render bullet & bullet body
-  //
-  // if (!snake.bullets.empty()) {
-  //   for (auto &bullet : snake.bullets) {
-  //     if (bullet.get()!=nullptr) {
-  //     block.x = static_cast<int>(bullet->origin_x) * block.w;
-  //     block.y = static_cast<int>(bullet->origin_y) * block.h;
-  //     switch(bullet->getColor()) {
-  //       case SwitchableColor::Color::kYellow:
-  //         SDL_SetRenderDrawColor(sdl_renderer, 0xFF, 0xCC, 0x00, 0xFF);
-  //         break;
-  //       case SwitchableColor::Color::kRed:
-  //         SDL_SetRenderDrawColor(sdl_renderer, 0xFF, 0x00, 0x00, 0xFF);
-  //         break;
-  //     }
-  //     SDL_RenderFillRect(sdl_renderer, &block);
-  //     }
-  //   }
-  // }
-
-
   // Update Screen
   SDL_RenderPresent(sdl_renderer);
 }
 
 void Renderer::UpdateWindowTitle(int score, int fps,
-    int highest_score, int longest_playtime) {
+    int highest_score) {
   std::string title{"Snake Score: " + std::to_string(score)
   + " FPS: " + std::to_string(fps)
   + " Highest Score: " + std::to_string(highest_score)};

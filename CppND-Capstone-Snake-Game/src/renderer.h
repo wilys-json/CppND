@@ -20,7 +20,7 @@ class Renderer {
   void Render(std::vector<std::shared_ptr<GameObject>>& objectPool);
   void SetRenderDrawColor(const Color color);
   void SetRenderDrawColor(std::shared_ptr<Snake> snake);
-  void UpdateWindowTitle(int score, int fps, int highest_score, int longest_playtime);
+  void UpdateWindowTitle(int score, int fps, int highest_score);
 
  private:
   SDL_Window *sdl_window;

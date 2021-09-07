@@ -9,6 +9,7 @@
 #include <memory>
 #include <vector>
 #include <utility>
+#include <string>
 #include "SDL.h"
 #include "map.h"
 #include "food.h"
@@ -65,9 +66,8 @@ class Game : public std::enable_shared_from_this<Game>{
   static const std::string cacheFilePath;
   struct Record {
     static const std::string highestScoreKeyWord;
-    static const std::string longestPlayTimeKeyWord;
+    static const char SkipLineCharacter;
     int HighestScore;
-    int LongestPlaytime;
   } record;
 
   // Methods
