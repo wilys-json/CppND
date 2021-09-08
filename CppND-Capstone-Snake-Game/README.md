@@ -42,6 +42,14 @@ Alternatively, you can compile and run the program on a Docker Image.
 9. Compile: `cmake .. && make`
 10. Run: `./SnakeGame`
 
+## File and Class Structures
+* Classes
+  * Abstract (Base) Classes / Interfaces
+    * `GameObject` in [GameObject.h](src/GameObject.h) - Base class of all game objects; defines the basic behavior of position projection `projectToMap()` [line 57](src/GameObject.h#57), type checking `isA<Type>()`, index checking `OffGrid()`, and shared pointer acquisition `shareThis()`.
+    * `Movables` - Defined in [Movables.h](src/Movables.h),
+  * Base64.h - Helper Code from [tomykaira](https://gist.github.com/tomykaira/f0fd86b6c73063283afe550bc5d77594)
+
+
 ## CC Attribution-ShareAlike 4.0 International
 
 Shield: [![CC BY-SA 4.0][cc-by-sa-shield]][cc-by-sa]
