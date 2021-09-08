@@ -45,13 +45,11 @@ Alternatively, you can compile and run the program on a Docker Image.
 ## File and Class Structures
 * Files
 The game mainly draws on the following files:
-
+```
   ...
   ├── data
   │   └── cache.txt
-  
   └── src
-
       ├── Base64.h
       ├── GameObject.h
       ├── Movables.h
@@ -74,7 +72,7 @@ The game mainly draws on the following files:
       ├── rival.h
       ├── snake.cpp
       └── snake.h
-
+```
 * Classes
 
   * Abstract (Base) Classes / Interfaces
