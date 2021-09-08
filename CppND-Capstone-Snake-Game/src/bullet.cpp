@@ -1,5 +1,6 @@
 #include "bullet.h"
 
+
 Bullet::~Bullet() {
   map = nullptr;
   shooter = nullptr;
@@ -14,6 +15,7 @@ void Bullet::Initialize() {
     initialized = true;
   }
 }
+
 
 void Bullet::Update() {
 
@@ -57,9 +59,11 @@ void Bullet::UpdateHead() {
   }
 }
 
+
 void Bullet::Blink() {
   color = (color == Color::kRed) ? Color::kYellow : Color::kRed;
 }
+
 
 bool Bullet::Collide(const GameObject* other) {
 

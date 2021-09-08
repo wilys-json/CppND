@@ -4,7 +4,7 @@
 #include "SDL.h"
 #include "GameObject.h"
 
-// interface for movable objects
+// Abstrct Class for movable objects
 class Movables
 {
  public:

@@ -93,6 +93,7 @@ class GameObject : public std::enable_shared_from_this<GameObject> {
       return false;
     }
 
+    // Overload for specific SDL point
     bool offGrid(const int& x, const int& y) {
       if (x < 0 || x >= grid_width || y < 0 || y >= grid_height) return true;
       return false;

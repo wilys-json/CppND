@@ -72,12 +72,14 @@ bool PlayerSnake::Collide(const GameObject* other) {
 
 }
 
+
 void PlayerSnake::Shrink() {
   if (size > 1 && !body.empty()) {
     body.erase(body.begin());
     size--;
     } else { alive = false; }
 }
+
 
 void PlayerSnake::Digest() {
 

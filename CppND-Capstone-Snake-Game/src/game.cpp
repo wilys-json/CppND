@@ -10,9 +10,12 @@
 #include "rival.h"
 #include "Base64.h"
 
+// Static variables
 const std::string Game::cacheFilePath{"../data/cache.txt"};
 const std::string Game::Record::highestScoreKeyWord{"highest_score"};
 
+
+// MessageQueue
 template <typename T>
 T MessageQueue<T>::receive()
 {
@@ -42,6 +45,7 @@ Game::Game(std::size_t grid_width, std::size_t grid_height)
       grid_height(grid_height),
       record() { Initialize(); }
 
+
 void Game::Initialize() {
   readRecord();
   map = std::make_shared<Map<GameObject>>(grid_height, grid_width);
@@ -52,6 +56,7 @@ void Game::Initialize() {
   Place<RivalSnake>();
 }
 
+
 Game::~Game() {
     player = nullptr;
     food = nullptr;
@@ -59,6 +64,7 @@ Game::~Game() {
         gameobject = nullptr;
     }
 }
+
 
 void Game::Run(Controller const &controller, Renderer &renderer,
                std::size_t target_frame_duration) {
@@ -102,6 +108,7 @@ void Game::Run(Controller const &controller, Renderer &renderer,
   }
 
 }
+
 
 template <typename T>
 void Game::Place() {
@@ -148,6 +155,7 @@ void Game::Place() {
    return;
  }
 }
+
 
 void Game::Update() {
 
@@ -242,6 +250,7 @@ int Game::GetScore() const { return score; }
 int Game::GetSize() const { return player->size; }
 int Game::GetHighestScore() const { return record.HighestScore; }
 
+
 void Game::readRecord() {
     std::string key, line, decoded;
     int value;
@@ -263,6 +272,7 @@ void Game::readRecord() {
      }
   throw std::runtime_error("Score record not found.");
 }
+
 
 void Game::writeRecord() {
     if (score > record.HighestScore) {

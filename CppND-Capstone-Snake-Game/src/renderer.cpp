@@ -37,7 +37,7 @@ Renderer::~Renderer() {
   SDL_Quit();
 }
 
-// void Renderer::Render(Snake const snake, Food const food) {
+
 void Renderer::Render(std::vector<std::shared_ptr<GameObject>>& objectPool) {
   SDL_Rect block;
 
@@ -74,7 +74,7 @@ void Renderer::Render(std::vector<std::shared_ptr<GameObject>>& objectPool) {
             }
           }
         }
-        // Snake::State snakeState = snake->getState();
+
 
         // Render snake's body
         SetRenderDrawColor(snake->getDefaultBodyColor());
@@ -104,6 +104,7 @@ void Renderer::Render(std::vector<std::shared_ptr<GameObject>>& objectPool) {
   SDL_RenderPresent(sdl_renderer);
 }
 
+
 void Renderer::UpdateWindowTitle(int score, int fps,
     int highest_score) {
   std::string title{"Snake Score: " + std::to_string(score)
@@ -111,6 +112,7 @@ void Renderer::UpdateWindowTitle(int score, int fps,
   + " Highest Score: " + std::to_string(highest_score)};
   SDL_SetWindowTitle(sdl_window, title.c_str());
 }
+
 
 void Renderer::SetRenderDrawColor(const Color color) {
   switch(color) {
@@ -136,6 +138,7 @@ void Renderer::SetRenderDrawColor(const Color color) {
       SDL_SetRenderDrawColor(sdl_renderer, 0x5A, 0x5A, 0x5A, 0xFF);
   }
 }
+
 
 void Renderer::SetRenderDrawColor(std::shared_ptr<Snake> snake) {
   switch(snake->getState()) {

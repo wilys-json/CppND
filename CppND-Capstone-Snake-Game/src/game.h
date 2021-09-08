@@ -34,8 +34,12 @@ private:
 
 class Game : public std::enable_shared_from_this<Game>{
  public:
+
+  // Constructor & Destructor
   Game(std::size_t grid_width, std::size_t grid_height);
   ~Game();
+
+  // Methods
   void Initialize();
   void Run(Controller const &controller, Renderer &renderer, std::size_t target_frame_duration);
   int GetScore() const;
@@ -44,11 +48,10 @@ class Game : public std::enable_shared_from_this<Game>{
   int GetLongestPlayTime() const;
   void Terminate();
 
+  // Ownerships
   std::shared_ptr<Map<GameObject>> map;
 
  private:
-
-
 
   // Attributes & Pointers
   std::vector<std::shared_ptr<GameObject>> objectPool;

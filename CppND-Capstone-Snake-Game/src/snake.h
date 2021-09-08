@@ -18,20 +18,15 @@ class Snake : public Movables, public GameObject {
   // Enum classes
   enum class State { kNormal, kShooter, kPoisoned, kSpeeding };
 
-  // constructor
+  // Constructor
   Snake() {};
   Snake(int grid_width, int grid_height, std::shared_ptr<Map<GameObject>> gameMap)
       : GameObject(grid_width, grid_height, std::move(gameMap)),
         Movables(Direction::kUp, 0.1f) {}
 
-  // // destructor
+  // Destructor
   ~Snake() {};
 
-  // // Move & Copy Semantics
-  // Snake(const Snake& source); // copy constructor
-  // Snake& operator=(const Snake& source); // copy assignment operator
-  // Snake(Snake&& source); // move constructor
-  // Snake& operator=(Snake&& source); // move assignment operator
 
   // Implement GameObject & Movables
   void Initialize() override;
@@ -42,7 +37,6 @@ class Snake : public Movables, public GameObject {
 
   // Actions
   void GrowBody();
-  // void Shoot();
   void Consume(std::shared_ptr<Food> food,
                std::promise<std::shared_ptr<Snake>> prmFoodConsumption);
 
@@ -64,7 +58,7 @@ class Snake : public Movables, public GameObject {
   void UpdateHead();
   void UpdateBody(SDL_Point &current_cell, SDL_Point &prev_cell);
 
-  // attributes & pointer
+  // Attributes & Pointer
   State state{State::kNormal};
   bool growing{false};
   int RandomInt{0};
