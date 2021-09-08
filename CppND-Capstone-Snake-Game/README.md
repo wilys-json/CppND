@@ -34,7 +34,7 @@ Alternatively, you can compile and run the program on a Docker Image.
 1. Clone this repo.
 2. Navigate to the main directory of this repo.
 3. Build the Docker image: `docker build -t capstone .` (This may take some time, and an image `capstone` will be created.)
-4. Run the script: `bash RunDocker.sh` (on Windows installed with Git Bash: `RunDocker.sh`)
+4. Run the script: `bash RunDocker.sh` (on Windows installed with Git Bash: `RunDocker.sh`, remove `-v /dev/shm/:/dev/shm/` from the script)
 5. Open `localhost:6080` on your browser.
 6. Open command line tool like LX Terminal.
 7. Navigate to the project directory: `cd project/capstone`
