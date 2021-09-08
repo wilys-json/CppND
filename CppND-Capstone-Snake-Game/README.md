@@ -46,9 +46,6 @@ Alternatively, you can compile and run the program on a Docker Image.
 * Files
 The game mainly draws on the following files:
 
-...
-├── data
-│   └── cache.txt
 └── src
     ├── Base64.h
     ├── GameObject.h
