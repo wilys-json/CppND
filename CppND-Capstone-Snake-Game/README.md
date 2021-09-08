@@ -49,7 +49,7 @@ Alternatively, you can compile and run the program on a Docker Image.
     * `Movables` in [Movables.h](src/Movables.h) - Abstract Class for all moving game objects: comprises virtual function to check for collision `Collide()` ([line 16](src/Movables.h#L16))
     * `SwitchableColor` in [SwitchableColor.h](src/SwitchableColor.h) - Base Abstract Class for all color-changing / flashing game objects: defines the behavior of color getter `getColor()` ([line 17](src/SwitchableColor.h#L17)) and comprises virtual function `Blink()` ([line 19](src/SwitchableColor.h#L19))
     * `Snake` in [snake.h](src/snake.h) - Inherited from `GameObject`, `Movables`, base class of `PlayerSnake` and `RivalSnake`: defines base classes virtual function and further comprises common methods of snakes and virtual functions of food consumption threads `Digest()` ([line 35](src/snake.h#L35)) and sequelae of collision `Shrink()` ([line 36](src/snake.h#L36))
-    [test](## Dependencies-for-Running-Locally)
+    * [test](##Dependencies-for-Running-Locally)
   * Base64.h - Helper Code from [tomykaira](https://gist.github.com/tomykaira/f0fd86b6c73063283afe550bc5d77594)
 
 
