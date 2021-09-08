@@ -46,57 +46,33 @@ Alternatively, you can compile and run the program on a Docker Image.
 * Files
 The game mainly draws on the following files:
 ...
-
 ├── data
 
 │   └── cache.txt
-
 └── src
 
     ├── Base64.h
-
     ├── GameObject.h
-
     ├── Movables.h
-
     ├── SwitchableColor.h
-
     ├── bullet.cpp
-
     ├── bullet.h
-
     ├── controller.cpp
-
     ├── controller.h
-
     ├── food.cpp
-
     ├── food.h
-
     ├── game.cpp
-
     ├── game.h
-
     ├── main.cpp
-
     ├── map.h
-
     ├── player.cpp
-
     ├── player.h
-
     ├── renderer.cpp
-
     ├── renderer.h
-
     ├── rival.cpp
-
     ├── rival.h
-
     ├── snake.cpp
-
     └── snake.h
-
 
 * Classes
 
