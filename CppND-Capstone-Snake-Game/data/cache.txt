@@ -1,2 +1,1 @@
-******DO NOT CHANGE THE LINE BELOW*****
-highest_score 0
+aGlnaGVzdF9zY29yZSAx

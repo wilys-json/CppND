@@ -12,7 +12,6 @@
 
 const std::string Game::cacheFilePath{"../data/cache.txt"};
 const std::string Game::Record::highestScoreKeyWord{"highest_score"};
-const char Game::Record::SkipLineCharacter{'*'};
 
 template <typename T>
 T MessageQueue<T>::receive()
@@ -236,6 +235,7 @@ void Game::Terminate() {
   std::cout << "Game has terminated successfully!\n";
   std::cout << "Score: " << GetScore() << "\n";
   std::cout << "Size: " << GetSize() << "\n";
+  writeRecord();
 }
 
 int Game::GetScore() const { return score; }
@@ -245,14 +245,11 @@ int Game::GetHighestScore() const { return record.HighestScore; }
 void Game::readRecord() {
     std::string key, line, decoded;
     int value;
-    std::ifstream filestream(cacheFilePath);
+    std::fstream filestream(cacheFilePath);
     if (filestream.is_open()) {
       while (std::getline(filestream, line)) {
-        if (line.at(0) == record.SkipLineCharacter) continue;
-        std::cout << "Encode: " << macaron::Base64::Encode(line) << std::endl;
-        macaron::Base64::Decode(macaron::Base64::Encode(line), decoded);
-        std::cout << "Decode: " << decoded << std::endl;
-        std::istringstream linestream(line);
+        macaron::Base64::Decode(line, decoded);
+        std::istringstream linestream(decoded);
         while (linestream >> key >> value) {
             if (key == record.highestScoreKeyWord) {
                  record.HighestScore = value;
@@ -260,6 +257,23 @@ void Game::readRecord() {
                }
             }
         }
-        throw std::runtime_error("Score Record not found or corrupted\nPlease see README for resetting the record.");
+       filestream << "aGlnaGVzdF9zY29yZSAw" << std::endl; // reset highest score
+       filestream.close();
+       return;
      }
+  throw std::runtime_error("Score record not found.");
+}
+
+void Game::writeRecord() {
+    if (score > record.HighestScore) {
+    std::cout << "Congratulations! You've made a new record!" << std::endl;
+    std::string newRecord{macaron::Base64::Encode(record.highestScoreKeyWord + " " + std::to_string(score))};
+    int value;
+    std::fstream recordFile(cacheFilePath);
+    if(recordFile.is_open()) {
+        recordFile << newRecord << std::endl;
+        recordFile.close();
+        return;
+        }
+    }
 }

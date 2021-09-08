@@ -66,13 +66,13 @@ class Game : public std::enable_shared_from_this<Game>{
   static const std::string cacheFilePath;
   struct Record {
     static const std::string highestScoreKeyWord;
-    static const char SkipLineCharacter;
     int HighestScore;
   } record;
 
   // Methods
   void readRecord();
   void writeRecord();
+  void resetHighestScore();
   void Update();
   void CheckEvents();
   void clearMap() { map->clear(); } ;
