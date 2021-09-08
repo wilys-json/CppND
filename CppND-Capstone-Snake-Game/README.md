@@ -49,9 +49,7 @@ The game mainly draws on the following files:
 ...
 ├── data
 │   └── cache.txt
-
 └── src
-
     ├── Base64.h
     ├── GameObject.h
     ├── Movables.h
