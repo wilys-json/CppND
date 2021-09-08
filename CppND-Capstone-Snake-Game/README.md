@@ -45,8 +45,10 @@ Alternatively, you can compile and run the program on a Docker Image.
 ## File and Class Structures
 * Classes
   * Abstract (Base) Classes / Interfaces
-    * `GameObject` in [GameObject.h](src/GameObject.h) - Base class of all game objects; defines the basic behavior of position projection `projectToMap()` ([line 57](src/GameObject.h#L57)), type checking `isA<Type>()`, index checking `OffGrid()`, and shared pointer acquisition `shareThis()`.
-    * `Movables` - Defined in [Movables.h](src/Movables.h),
+    * `GameObject` in [GameObject.h](src/GameObject.h) - Base class of all game objects (`Food`, `Bullet`, `Snake`): defines the basic behavior of position projection `projectToMap()` ([line 57](src/GameObject.h#L57)), type checking `isA<Type>()`([line 82](src/GameObject.h#L82)), index checking `OffGrid()` ([line 88](src/GameObject.h#L88)), and shared pointer acquisition `shareThis()`([line 102](src/GameObject.h#L102)), comprises virtual functions to update `Update()`([line 49](src/GameObject.h#L49)) and to initialize `Initialize()`([line 50](src/GameObject.h#L50)), and shares ownerships of `Map` object
+    * `Movables` in [Movables.h](src/Movables.h) - Abstract Class for all moving game objects: comprises virtual function to check for collision `Collide()` ([line 16](src/Movables.h#L16))
+    * `SwitchableColor` in [SwitchableColor.h](src/SwitchableColor.h) - Base Abstract Class for all color-changing / flashing game objects: defines the behavior of color getter `getColor()` ([line 17](src/SwitchableColor.h#L17)) and comprises virtual function `Blink()` ([line 19](src/SwitchableColor.h#L19))
+    * `Snake` in [snake.h](src/snake.h) - Inherited from `GameObject`, `Movables`, base class of `PlayerSnake` and `RivalSnake`: defines base classes virtual function and further comprises common methods of snakes and virtual functions of food consumption threads `Digest()` ([line 35](src/snake.h#L35)) and sequelae of collision `Shrink()` ([line 36](src/snake.h#L36))
   * Base64.h - Helper Code from [tomykaira](https://gist.github.com/tomykaira/f0fd86b6c73063283afe550bc5d77594)
 
 
